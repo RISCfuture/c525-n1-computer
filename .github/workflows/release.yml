@@ -1,0 +1,239 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build, without the leading v"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - name: Resolve the version being released
+        id: resolve
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            version="$INPUT_VERSION"
+          else
+            version="${TAG#v}"
+          fi
+          if [ -z "$version" ]; then
+            echo "error: could not resolve a version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Releasing $version"
+
+  test:
+    name: Host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run the host tests
+        run: tests/run_tests.sh
+        env:
+          CXX: g++
+
+  build:
+    name: Build ${{ matrix.platform }}
+    needs: version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+            dir: mac_x64
+          - os: windows-latest
+            platform: win
+            dir: win_x64
+          - os: ubuntu-latest
+            platform: lin
+            dir: lin_x64
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install OpenGL headers
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libgl1-mesa-dev
+
+      - name: Configure
+        run: >
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          "-DSFN1_VERSION=${{ needs.version.outputs.version }}"
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: xpl-${{ matrix.platform }}
+          path: dist/SafeFlightN1/${{ matrix.dir }}/SafeFlightN1.xpl
+          if-no-files-found: error
+
+  manual:
+    name: Render the manual
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: browser-actions/setup-chrome@v2
+        id: chrome
+        with:
+          chrome-version: stable
+
+      - name: Render the PDF
+        env:
+          CHROME: ${{ steps.chrome.outputs.chrome-path }}
+          CHROME_EXTRA_ARGS: --no-sandbox
+        run: scripts/render_manual.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: manual
+          path: docs/manual/SafeFlightN1-Manual.pdf
+          if-no-files-found: error
+
+  package:
+    name: Sign, package and notarize
+    needs: [version, test, build, manual]
+    runs-on: macos-latest
+    outputs:
+      archive: ${{ steps.archive.outputs.name }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # bin/api-key decrypts the App Store Connect key used for notarization.
+      - name: Check out the signing credentials
+        uses: actions/checkout@v7
+        with:
+          repository: RISCfuture/certificates
+          token: ${{ secrets.CERTIFICATES_TOKEN }}
+          path: certificates
+          persist-credentials: false
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Sign the macOS plugin
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        run: >
+          bundle exec fastlane mac sign
+          path:"$GITHUB_WORKSPACE/artifacts/xpl-mac/SafeFlightN1.xpl"
+
+      - name: Assemble the plugin folder
+        run: scripts/package_release.sh artifacts staging
+
+      # Written after signing so the checksums describe the signed binary, and
+      # into the same tree the zip ships, so a fresh download and an update
+      # converge on identical files.
+      - name: Write the SkunkCrafts manifest
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          # Derived rather than hardcoded so renaming the repository cannot
+          # silently point the updater feed at a URL that serves nothing.
+          owner="$(echo "${GITHUB_REPOSITORY%%/*}" | tr '[:upper:]' '[:lower:]')"
+          repo="${GITHUB_REPOSITORY##*/}"
+          python3 scripts/skunkcrafts_manifest.py staging/SafeFlightN1 \
+            --version "$VERSION" \
+            --module-url "https://${owner}.github.io/${repo}/"
+
+      - name: Create the archive
+        id: archive
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          name="SafeFlightN1-${VERSION}.zip"
+          (cd staging && zip -qr "../$name" SafeFlightN1)
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          ls -la "$name"
+
+      # A ticket cannot be stapled to a loose bundle or to a zip, so the
+      # archive is notarized and Gatekeeper clears it by online lookup.
+      - name: Notarize the archive
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          CERTIFICATES_REPO: ${{ github.workspace }}/certificates
+        run: >
+          bundle exec fastlane mac notarize_archive
+          archive:"$GITHUB_WORKSPACE/${{ steps.archive.outputs.name }}"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-archive
+          path: ${{ steps.archive.outputs.name }}
+          if-no-files-found: error
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: staging/SafeFlightN1
+
+  release:
+    name: Publish the release
+    needs: [version, package, manual]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-archive
+
+      # The manual ships inside the zip too, but plenty of people want to read
+      # it before deciding to install anything, so it is attached on its own.
+      # The name carries no version, which is what makes
+      # releases/latest/download/SafeFlightN1-Manual.pdf a durable link.
+      - uses: actions/download-artifact@v8
+        with:
+          name: manual
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            ${{ needs.package.outputs.archive }}
+            SafeFlightN1-Manual.pdf
+          body: >
+            The manual is attached below as `SafeFlightN1-Manual.pdf`; you do
+            not have to download or install the plugin to read it.
+          generate_release_notes: true
+
+  pages:
+    name: Publish the updater feed
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

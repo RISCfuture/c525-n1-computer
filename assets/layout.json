@@ -1,0 +1,12 @@
+{
+  "png_size": [1200, 936],
+  "display_window": { "x": 0.3, "y": 0.2212, "w": 0.365, "h": 0.2457 },
+  "knob": {
+    "cx": 0.485,
+    "cy": 0.7714,
+    "r": 0.1208,
+    "angles_deg": { "CLB": -40, "TOGA": 0, "CRU": 40 }
+  },
+  "digit_cells": 3,
+  "decimal_after": 2
+}

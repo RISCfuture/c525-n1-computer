@@ -1,0 +1,31 @@
+# High-signal checks only. modernize-* and readability-* are deliberately off:
+# the sources follow a consistent hand-written style that those categories would
+# churn without making anything more correct.
+Checks: >
+  bugprone-*,
+  performance-*,
+  misc-*,
+  clang-analyzer-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-empty-catch,
+  -bugprone-narrowing-conversions,
+  -bugprone-signed-bitwise,
+  -clang-analyzer-optin.core.EnumCastOutOfRange,
+  -misc-const-correctness,
+  -misc-include-cleaner,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+  -misc-use-internal-linkage,
+  -performance-enum-size
+
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*/src/[^/]+\.h$'
+
+# Rationale for the exclusions above:
+#   bugprone-empty-catch          two sites swallow a parse or save failure on
+#                                 purpose; both carry a comment saying so
+#   bugprone-signed-bitwise       ImGui's flag enums are signed, so every
+#                                 `ImGuiWindowFlags_A | B` trips it
+#   optin.core.EnumCastOutOfRange same ImGui flag combinations
+#   misc-const-correctness        churn, no correctness benefit
+#   performance-enum-size         micro-optimisation of three small enums

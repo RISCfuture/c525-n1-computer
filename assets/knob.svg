@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Safe Flight N1 Computer mode knob, drawn pointing UP with a transparent
+  surround. The knob circle fills the whole canvas so the plugin can scale
+  the PNG to exactly 2*r from layout.json and rotate about center.
+
+  The face is two flat facets meeting at a chord above center: the upper one
+  is tilted, so it catches the light and sits brighter, and the lower one is
+  parallel to the view plane. Neither is curved, so both take a single flat
+  tone and the chord is simply where the two tones meet, not a painted line.
+  The index is scribed down the full diameter, across both facets, and shifts
+  tone with the facet it crosses. The rim knurl is not drawn: it is on the
+  cylindrical edge, which is invisible looking straight down the axis.
+
+  Facet and index rotate together, so the sprite stays self-consistent
+  through the plugin's detent throw.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="290" height="290" viewBox="0 0 290 290">
+  <defs>
+    <clipPath id="knob-face">
+      <circle cx="145" cy="145" r="144"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#knob-face)">
+    <rect x="0" y="113" width="290" height="177" fill="#252529"/>
+    <rect x="0" y="0" width="290" height="113" fill="#3a3a3f"/>
+    <rect x="140" y="113" width="10" height="177" fill="#cdc7b3"/>
+    <rect x="140" y="0" width="10" height="113" fill="#efe9d7"/>
+  </g>
+
+  <circle cx="145" cy="145" r="142.5" fill="none" stroke="#0a0a0c" stroke-width="3"/>
+</svg>

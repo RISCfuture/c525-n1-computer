@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safe Flight N1 Computer — Manual</title>
+<link rel="stylesheet" href="jost-embedded.css">
+<link rel="stylesheet" href="manual.css">
+</head>
+<body>
+
+<section class="cover">
+  <img class="cover__shot" src="../images/in-cockpit.png"
+       alt="The N1 Computer popup floating over the CitationJet 525 cockpit at night">
+  <div class="cover__plate">
+    <p class="cover__eyebrow">X-Plane 12 &middot; TorqueSim CitationJet 525</p>
+    <h1 class="cover__title">Safe Flight&nbsp;<br>N<sub>1</sub> Computer</h1>
+    <p class="cover__sub">Pilot&rsquo;s guide and installation manual</p>
+    <p class="cover__pn">P/N C-12732-1 &middot; Plugin version 0.1.0</p>
+    <p class="cover__fine">
+      A simulation of the Safe Flight N<sub>1</sub> Computer/Display for use in X-Plane 12.
+      Not affiliated with, endorsed by, or supported by Safe Flight Instrument, LLC,
+      Textron Aviation, or TorqueSim. Performance data is community-sourced and
+      approximate. <strong>Not for real world use.</strong>
+    </p>
+  </div>
+</section>
+
+<main class="sheet">
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1">1 &nbsp; Introduction</a></li>
+    <li><a href="#s2">2 &nbsp; Installation</a>
+      <ol class="sub">
+        <li><a href="#s2-1">Requirements</a></li>
+        <li><a href="#s2-2">Installing the plugin</a></li>
+        <li><a href="#s2-3">Checking the installation</a></li>
+        <li><a href="#s2-4">Removing the plugin</a></li>
+      </ol>
+    </li>
+    <li><a href="#s3">3 &nbsp; Normal Procedures</a>
+      <ol class="sub">
+        <li><a href="#s3-1">Opening and placing the window</a></li>
+        <li><a href="#s3-2">Controls</a></li>
+        <li><a href="#s3-3">Power-up</a></li>
+        <li><a href="#s3-4">Before takeoff</a></li>
+        <li><a href="#s3-5">Setting an assumed temperature</a></li>
+        <li><a href="#s3-6">Anti-ice</a></li>
+        <li><a href="#s3-7">Climb and cruise</a></li>
+        <li><a href="#s3-8">Approach and go-around</a></li>
+        <li><a href="#s3-9">After landing</a></li>
+        <li><a href="#s3-10">Display summary</a></li>
+      </ol>
+    </li>
+    <li><a href="#s4">4 &nbsp; Limitations</a></li>
+    <li><a href="#s5">5 &nbsp; Systems Description</a>
+      <ol class="sub">
+        <li><a href="#s5-1">The installation</a></li>
+        <li><a href="#s5-2">What the device senses</a></li>
+        <li><a href="#s5-3">Choosing a schedule</a></li>
+        <li><a href="#s5-4">The anti-ice interlock</a></li>
+        <li><a href="#s5-5">The performance charts</a></li>
+        <li><a href="#s5-6">Power and the N<sub>1</sub> IND breaker</a></li>
+        <li><a href="#s5-7">Failure indications</a></li>
+        <li><a href="#s5-8">The readout</a></li>
+      </ol>
+    </li>
+    <li><a href="#s6">6 &nbsp; Troubleshooting</a></li>
+    <li><a href="#s7">7 &nbsp; Developers</a></li>
+    <li><a href="#s8">8 &nbsp; Credits and Licence</a></li>
+  </ol>
+</nav>
+
+<!-- ==================================================== 1 Introduction -->
+<section id="s1">
+<h2><span class="num">1&nbsp;</span>Introduction</h2>
+
+<p>
+The Safe Flight N<sub>1</sub> Computer is a small panel instrument that tells you what fan
+speed to set. It reads ram air temperature and pressure altitude, looks up the
+flight manual&rsquo;s thrust schedule, and shows the answer on a three-digit amber
+readout. A three-position knob picks the schedule: takeoff and go-around, maximum
+climb, or maximum cruise.
+</p>
+
+<p>
+Safe Flight Instrument Corporation built it as the
+<span class="legend">N<sub>1</sub> COMPUTER/DISPLAY</span>, part number C-12732-1. It was
+certified for the 525 under STC SA01872AT in 1999, as a factory option or a service
+center retrofit.
+</p>
+
+<p>
+It is an advisory instrument. FlightSafety&rsquo;s CJ1 training manual describes it
+as &ldquo;a secondary means of computing approximate N<sub>1</sub>&rdquo;, the primary means
+being the FAA-approved Airplane Flight Manual. It drives nothing &mdash; no bugs, no
+autothrottle, no link to the engine displays. It is not required equipment for any
+kind of operation.
+</p>
+
+<p>
+This plugin recreates that box for the TorqueSim CitationJet 525 in X-Plane 12. It
+appears as a floating window you can move, resize and pop out, rather than as a
+clickable instrument in the 3D cockpit, so it works whichever seat or view you fly
+from.
+</p>
+</section>
+
+<!-- ==================================================== 2 Installation -->
+<section id="s2">
+<h2><span class="num">2&nbsp;</span>Installation</h2>
+
+<h3 id="s2-1">Requirements</h3>
+<table>
+  <thead><tr><th style="width:34%">Item</th><th>Requirement</th></tr></thead>
+  <tbody>
+    <tr><th>Simulator</th><td>X-Plane 12.3.0 or later, 64-bit</td></tr>
+    <tr><th>macOS</th><td>12.0 Monterey or later. Universal binary: Apple silicon and Intel.</td></tr>
+    <tr><th>Windows</th><td>Windows 10 or 11, 64-bit</td></tr>
+    <tr><th>Linux</th><td>A 64-bit distribution supported by X-Plane 12; Laminar Research tests against Ubuntu 20.04&nbsp;LTS and later.</td></tr>
+    <tr><th>Aircraft</th><td>TorqueSim <em>Take Command!</em> CitationJet 525. The device is inactive in every other aircraft.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s2-2">Installing the plugin</h3>
+<p>
+Copy the <code>SafeFlightN1</code> folder into your X-Plane 12
+<code>Resources/plugins/</code> directory, then restart the simulator. The folder
+must keep its internal shape, because the plugin finds its charts and artwork
+relative to the <code>.xpl</code>:
+</p>
+
+<table class="keep">
+  <thead><tr><th style="width:46%">Inside <code>plugins/SafeFlightN1/</code></th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr><th><code>mac_x64/SafeFlightN1.xpl</code></th><td>The plugin, macOS</td></tr>
+    <tr><th><code>win_x64/SafeFlightN1.xpl</code></th><td>The plugin, Windows</td></tr>
+    <tr><th><code>lin_x64/SafeFlightN1.xpl</code></th><td>The plugin, Linux</td></tr>
+    <tr><th><code>data/</code></th><td>Eight N<sub>1</sub> schedule tables</td></tr>
+    <tr><th><code>assets/</code></th><td><code>faceplate.png</code>, <code>knob.png</code>, <code>layout.json</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+The plugin goes in <code>Resources/plugins/</code> rather than inside the aircraft
+folder on purpose. The CJ525 is payware that updates itself, and an update that
+replaced the aircraft folder would silently delete a plugin living there.
+</p>
+
+<div class="callout">
+  <p class="callout__label">Note</p>
+  <p>
+    On macOS, a plugin downloaded as an archive may be quarantined and X-Plane
+    will refuse to load it with no visible error. Clear the flag with
+    <code>xattr -dr com.apple.quarantine "/path/to/SafeFlightN1"</code>.
+  </p>
+</div>
+
+<h3 id="s2-3">Checking the installation</h3>
+<p>
+Load the CJ525 and open the <strong>Plugins</strong> menu. A
+<strong>Safe Flight N<sub>1</sub> Computer</strong> submenu should appear with two items,
+<strong>Toggle N<sub>1</sub> Computer Window</strong> and <strong>Pull N<sub>1</sub> IND Circuit
+Breaker</strong>. Both are grayed out until the aircraft&rsquo;s own systems have
+finished loading, which takes a few seconds after the flight starts.
+</p>
+<p>
+If you want confirmation, <code>Log.txt</code> in your X-Plane folder will contain:
+</p>
+<pre><code>Loaded: .../Resources/plugins/SafeFlightN1/&lt;platform&gt;/SafeFlightN1.xpl
+SafeFlightN1: CJ525 detected; resolving afm/cj datarefs
+SafeFlightN1: afm/cj datarefs resolved; gate active</code></pre>
+
+<h3 id="s2-4">Removing the plugin</h3>
+<p>
+Delete the <code>SafeFlightN1</code> folder from <code>Resources/plugins/</code>.
+The only file the plugin writes is <code>settings.ini</code> inside its own folder,
+which remembers the window&rsquo;s size and position; deleting it resets the window
+to a centered default. Nothing is written elsewhere in your X-Plane installation.
+</p>
+</section>
+
+<!-- =============================================== 3 Normal Procedures -->
+<section id="s3">
+<h2><span class="num">3&nbsp;</span>Normal Procedures</h2>
+
+<h3 id="s3-1">Opening and placing the window</h3>
+<p>
+Open the device from <strong>Plugins &rarr; Safe Flight N<sub>1</sub> Computer &rarr; Toggle
+N<sub>1</sub> Computer Window</strong>, or bind the <code>sfn1/toggle_window</code> command to
+a key or button. It opens centered, about the size of the real 2.6-inch instrument.
+</p>
+<p>
+The plate carries no title bar, so its corners do the work. Drag the plate anywhere
+off the knob and legends to move it. Drag a bottom corner &mdash; the pointer turns
+into a pair of arrows aimed at it &mdash; to resize it, and the faceplate keeps its
+proportions. The top-left corner shows a red cross: click it to put the device away.
+It pops out into a separate desktop window, follows you into VR, and returns wherever
+you left it next flight.
+</p>
+
+<h3 id="s3-2">Controls</h3>
+<p>
+The unit has one control: a three-position rotary knob that also presses. The
+pointer says which is which: a push cursor over the knob itself, a turn cursor
+over each legend.
+</p>
+<table class="keep">
+  <thead><tr><th style="width:44%">Do this</th><th>And</th></tr></thead>
+  <tbody>
+    <tr><th>Click the <span class="legend">CLB</span> or <span class="legend">CRU</span> legend</th><td>the knob steps one detent that way</td></tr>
+    <tr><th>Scroll over the knob</th><td>one detent per click of the wheel</td></tr>
+    <tr><th>Press and hold the knob</th><td>the display reads ram air temperature</td></tr>
+    <tr><th>Scroll while holding the knob</th><td>dials the selected temperature, 1&nbsp;&deg;C per click</td></tr>
+  </tbody>
+</table>
+<p>
+The knob does not wrap. Every action above is also available as a command you can
+bind to hardware; see section 7.
+</p>
+
+<h3 id="s3-3">Power-up</h3>
+<p>
+The device wakes with the avionics. Turn the avionics master on with a live bus and
+the display shows <span class="readout">888</span> for five seconds while it tests
+every segment, then settles to the target for whichever mode the knob is in.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-self-test.png" alt="The display showing 888 during the power-up self-test">
+  <figcaption><b>Figure 3-1</b> &mdash; The five-second power-up self-test.</figcaption>
+</figure>
+
+<h3 id="s3-4">Before takeoff</h3>
+<p>
+Select <span class="legend">TO/GA</span>. On the ground the display reads the
+takeoff N<sub>1</sub> for the current ram air temperature, the field pressure altitude, and
+the anti-ice configuration. Set that on the throttles for takeoff.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-takeoff-n1.png" alt="The display reading 96.7 percent N1">
+  <figcaption><b>Figure 3-2</b> &mdash; Takeoff N<sub>1</sub> target, standard day at sea level.</figcaption>
+</figure>
+<p>
+<span class="legend">CLB</span> and <span class="legend">CRU</span> mean nothing on
+the ground, so selecting either shows dashes as an invalid mode.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-dashes.png" alt="The display showing three dashes">
+  <figcaption><b>Figure 3-3</b> &mdash; Dashes: no target for this mode and these conditions.</figcaption>
+</figure>
+
+<h3 id="s3-5">Setting an assumed temperature</h3>
+<p>
+Hold the knob down and the display swaps to the ram air temperature it is using,
+in whole degrees Celsius.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-rat.png" alt="The display reading 15, the ram air temperature">
+  <figcaption><b>Figure 3-4</b> &mdash; Holding the knob reads out RAT, here 15&nbsp;&deg;C.</figcaption>
+</figure>
+<p>
+Scroll while holding to dial in a different temperature &mdash; the reported
+airfield temperature, say. The value blinks, marking it as yours rather than the
+sensed one.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-temp-set.png" alt="The display reading 18, the selected temperature, blinking">
+  <figcaption><b>Figure 3-5</b> &mdash; A selected temperature of 18&nbsp;&deg;C. The readout blinks.</figcaption>
+</figure>
+<p>
+Release, and the display returns to takeoff N<sub>1</sub> computed for that temperature. The
+selection is discarded at liftoff, and cannot be made in flight.
+</p>
+
+<h3 id="s3-6">Anti-ice</h3>
+<p>
+Anti-ice costs thrust, and the flight manual publishes a separate schedule for it.
+The device follows the aircraft&rsquo;s switches with no input from you: with engine
+bleed and both wing anti-ice selected on, it reads from the anti-ice schedule.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-anti-ice.png" alt="The display reading 94.3 percent N1 with anti-ice on">
+  <figcaption><b>Figure 3-6</b> &mdash; The anti-ice schedule, all three systems on.</figcaption>
+</figure>
+<div class="callout callout--caution">
+  <p class="callout__label">Caution</p>
+  <p>
+    Anti-ice is all or nothing. If only some of the three systems are on, the
+    display shows dashes rather than guess at a partial-bleed target. Turn the rest
+    on, or turn them all off, and a number returns.
+  </p>
+</div>
+
+<h3 id="s3-7">Climb and cruise</h3>
+<p>
+Once airborne, select <span class="legend">CLB</span> for the recommended maximum
+climb setting. The device now works from sensed ram air temperature and pressure
+altitude, and it keeps recomputing: N<sub>1</sub> rises with altitude, so expect to nudge the
+throttles up several times during the climb to hold the target.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-climb.png" alt="The display reading 99.9 percent N1 in the climb">
+  <figcaption><b>Figure 3-7</b> &mdash; Maximum climb thrust at FL250.</figcaption>
+</figure>
+<p>
+Level off and select <span class="legend">CRU</span> for the recommended maximum
+cruise setting. As the aircraft accelerates and ram rise pushes the temperature up,
+the target will move again.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-cruise.png" alt="The display reading 101 percent N1 in the cruise">
+  <figcaption>
+    <b>Figure 3-8</b> &mdash; Maximum cruise thrust at FL390. Above 99.9&nbsp;% the
+    readout drops the tenth and shows whole percent, with the decimal point unlit
+    &mdash; this is <span class="readout">101</span>, not 10.1.
+  </figcaption>
+</figure>
+
+<h3 id="s3-8">Approach and go-around</h3>
+<p>
+Descending through 15,500&nbsp;ft, select <span class="legend">TO/GA</span> again.
+In flight that position gives go-around thrust, ready before you need it. Above
+15,500&nbsp;ft it shows dashes, because a go-around setting has no meaning up there.
+</p>
+<figure class="fig--device">
+  <img src="../images/display-go-around.png" alt="The display reading 99.5 percent N1 for go-around">
+  <figcaption><b>Figure 3-9</b> &mdash; Go-around thrust, set up during the approach.</figcaption>
+</figure>
+
+<h3 id="s3-9">After landing</h3>
+<p>
+One minute after touchdown the display reverts to <span class="readout">888</span>
+and stands by. Press or turn the knob and it wakes immediately.
+</p>
+
+<h3 id="s3-10">Display summary</h3>
+<table class="keep">
+  <thead><tr><th style="width:26%">The display reads</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><th>Nothing at all</th><td>Unpowered. No avionics bus, or the N<sub>1</sub> IND breaker is pulled.</td></tr>
+    <tr><th><span class="readout">888</span></th><td>Self-test for five seconds after power-up, or standby a minute after landing.</td></tr>
+    <tr><th><span class="readout">&ndash;&ndash;&ndash;</span></th><td>No target: an invalid mode, partial anti-ice, or conditions off the chart.</td></tr>
+    <tr><th><span class="readout">96.7</span></th><td>The N<sub>1</sub> target, in percent.</td></tr>
+    <tr><th><span class="readout">101</span></th><td>A target of 100&nbsp;% or more, to the whole percent. The decimal point is unlit.</td></tr>
+    <tr><th><span class="readout">15</span></th><td>Ram air temperature, while the knob is held.</td></tr>
+    <tr><th><span class="readout">18</span> blinking</th><td>The selected temperature you have dialed in.</td></tr>
+    <tr><th>Blank, but faintly lit</th><td>A failure. See section 5.7.</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ===================================================== 4 Limitations -->
+<section id="s4">
+<h2><span class="num">4&nbsp;</span>Limitations</h2>
+
+<p>
+<strong>The device is advisory.</strong> It is a secondary means of computing an
+approximate N<sub>1</sub>. It drives nothing and is not linked to the engine instruments. The
+published performance charts remain the authority.
+</p>
+
+<p>
+<strong>Normal, two-engine operation only.</strong> There is no single-engine
+schedule.
+</p>
+
+<p>
+<strong>The charts have edges.</strong> Outside them the display dashes rather than
+extrapolating.
+</p>
+<table class="keep">
+  <thead><tr><th>Schedule</th><th>Pressure altitude</th><th>Temperature</th></tr></thead>
+  <tbody>
+    <tr><th>Takeoff</th><td>Sea level to 7,000&nbsp;ft</td><td>&minus;25 to +40&nbsp;&deg;C</td></tr>
+    <tr><th>Go-around</th><td>Sea level to 7,000&nbsp;ft</td><td>&minus;30 to +40&nbsp;&deg;C</td></tr>
+    <tr><th>Maximum climb</th><td>Sea level to 41,000&nbsp;ft</td><td>&minus;45 to +45&nbsp;&deg;C</td></tr>
+    <tr><th>Maximum cruise</th><td>Sea level to 41,000&nbsp;ft</td><td>&minus;45 to +45&nbsp;&deg;C</td></tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>Anti-ice schedules stop at +10&nbsp;&deg;C.</strong> No anti-ice data
+      is published above that temperature, so with anti-ice on and a warm day the
+      display dashes.</li>
+  <li><strong>FL410 sits exactly on the top line of the cruise chart</strong>, so the
+      display may come and go there as altitude wanders.</li>
+  <li><strong>Go-around thrust is available at or below 15,500&nbsp;ft.</strong>
+      Above that ceiling the display dashes.</li>
+  <li><strong>A selected temperature is a ground facility.</strong> It saturates at
+      &plusmn;99&nbsp;&deg;C and is discarded at liftoff.</li>
+  <li><strong>Resolution changes at 100&nbsp;%.</strong> Below 99.95&nbsp;% the
+      readout shows tenths; at or above it shows whole percent with the decimal
+      point unlit, because there are only three digits.</li>
+  <li><strong>Nothing carries across flights</strong> except the window position.
+      The knob, any selected temperature and the breaker all return to their
+      defaults when an aircraft loads.</li>
+</ul>
+
+<div class="callout callout--caution">
+  <p class="callout__label">Caution</p>
+  <p>
+    The schedules are transcribed from the community-built <em>TorqueSim Cessna
+    Citation 525 Performance Manual</em> by hornetaircraft and collaborators
+    (see &sect;8), not from Textron&rsquo;s own charts. Two regions carry known
+    uncertainty because the source pages disagree with themselves: the
+    2,000&nbsp;ft go-around block and the 7,000&nbsp;ft takeoff block.
+  </p>
+</div>
+</section>
+
+<!-- ============================================= 5 Systems Description -->
+<section id="s5">
+<h2><span class="num">5&nbsp;</span>Systems Description</h2>
+
+<h3 id="s5-1">The installation</h3>
+<p>
+On the real CitationJet the unit lives in the top row of the center instrument
+panel, just under the glareshield annunciators: right of the pilot&rsquo;s encoding
+altimeter, left of the N<sub>1</sub> tape at the head of the engine cluster, and directly above
+the standby attitude indicator. It is a shallow octagonal plate about 2.6&nbsp;inches
+across, weighing well under a pound, with the amber readout above and the mode knob
+below.
+</p>
+
+<h3 id="s5-2">What the device senses</h3>
+<p>
+Everything is taken from the aircraft; there is nothing to configure.
+</p>
+<table>
+  <thead><tr><th style="width:38%">Input</th><th>Used for</th></tr></thead>
+  <tbody>
+    <tr><th>Ram air temperature</th><td>The temperature axis of every chart, and the readout when the knob is held</td></tr>
+    <tr><th>Pressure altitude</th><td>The altitude axis of every chart</td></tr>
+    <tr><th>Weight on wheels</th><td>Ground or airborne, which decides what each knob position means</td></tr>
+    <tr><th>Avionics master and bus voltage</th><td>Whether the device is powered at all</td></tr>
+    <tr><th>Engine bleed and wing anti-ice switches</th><td>Choosing the normal or anti-ice schedule</td></tr>
+    <tr><th>Air data computer and static system failures</th><td>Blanking the display</td></tr>
+    <tr><th>Center instrument light rheostat</th><td>Dimming the readout for night operation</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s5-3">Choosing a schedule</h3>
+<p>
+The knob picks a schedule, but what each position means depends on whether you are
+on the ground.
+</p>
+<table class="keep">
+  <thead><tr><th style="width:22%">Knob</th><th>On the ground</th><th>Airborne</th></tr></thead>
+  <tbody>
+    <tr><th><span class="legend">CLB</span></th><td>Dashes</td><td>Recommended maximum climb</td></tr>
+    <tr><th><span class="legend">TO/GA</span></th><td>Takeoff</td><td>Go-around, at or below 15,500&nbsp;ft; dashes above</td></tr>
+    <tr><th><span class="legend">CRU</span></th><td>Dashes</td><td>Recommended maximum cruise</td></tr>
+  </tbody>
+</table>
+<p>
+On the ground the takeoff lookup uses your selected temperature if you have dialed
+one, and the sensed temperature otherwise. Airborne, it is always sensed temperature.
+</p>
+
+<h3 id="s5-4">The anti-ice interlock</h3>
+<p>
+The device watches three switches: engine bleed anti-ice, left wing, and right wing.
+All three off gives the normal schedule; all three on gives the anti-ice schedule.
+Anything in between is a partial configuration the charts do not cover, and the
+device shows dashes rather than pick a schedule that would be wrong.
+</p>
+
+<h3 id="s5-5">The performance charts</h3>
+<p>
+Eight tables ship with the plugin: takeoff, go-around, maximum climb and maximum
+cruise, each in a normal and an anti-ice version. Each is a grid of N<sub>1</sub> against
+temperature and pressure altitude, and the device interpolates between the four
+surrounding points to get a value for exactly your conditions &mdash; the
+interpolating the pilot would otherwise be doing by eye.
+</p>
+<p>
+Where a chart prints no value, the table cell is empty and the device dashes. It
+never extrapolates past the edge of a chart. The one exception is a pressure
+altitude below sea level, which happens on a high-pressure day: that is treated as
+sea level rather than off-chart.
+</p>
+
+<h3 id="s5-6">Power and the N<sub>1</sub> IND breaker</h3>
+<p>
+The device runs off the avionics bus and needs the avionics master on and a bus
+actually energized. It is protected by the 5&nbsp;amp <strong>N<sub>1</sub> IND</strong> breaker
+in the avionics DC section of the right circuit breaker panel.
+</p>
+<p>
+You can pull and reset that breaker from
+<strong>Plugins &rarr; Safe Flight N<sub>1</sub> Computer</strong>; the menu item&rsquo;s label
+follows the breaker&rsquo;s position. Pulling it kills the display; resetting it
+re-runs the self-test. That power cycle is the only way to clear a latched failure.
+</p>
+
+<h3 id="s5-7">Failure indications</h3>
+<p>
+The display blanks for any failure. That gives two different dark displays which are
+worth learning to tell apart, because they mean opposite things.
+</p>
+<figure class="fig--wide">
+  <div class="fig--pair">
+    <img src="../images/display-off.png" alt="The display completely dark, showing nothing">
+    <img src="../images/display-fail.png" alt="The display blank but faintly showing its unlit segments">
+  </div>
+  <figcaption>
+    <b>Figure 5-1</b> &mdash; Unpowered on the left: the recess is dead black.
+    Failed on the right: the device is still energized, so the unlit segments glow
+    faintly.
+  </figcaption>
+</figure>
+<p>
+<strong>Dead black</strong> means no power &mdash; the avionics are off, the bus is
+dead, or the N<sub>1</sub> IND breaker is pulled. Nothing is driving the readout.
+</p>
+<p>
+<strong>Blank with the ghost segments visible</strong> means the device is powered
+and has failed. An air data computer or static source has failed and it will not
+guess. When the source recovers, the display comes back on its own.
+</p>
+<div class="callout">
+  <p class="callout__label">Note</p>
+  <p>
+    A failure that is present at power-up is different: the self-test fails, the
+    display blanks instead of showing <span class="readout">888</span>, and it stays
+    that way. Fixing the air data will not clear it. Pull and reset the N<sub>1</sub> IND
+    breaker to run the self-test again.
+  </p>
+</div>
+
+<h3 id="s5-8">The readout</h3>
+<p>
+Three amber seven-segment digits with a decimal point after the second, sunk in a
+black recess. Unlit segments glow faintly rather than disappearing, exactly as a
+real LED display does, which is what makes the failed display distinguishable from
+an unpowered one.
+</p>
+<p>
+The readout runs at full daylight intensity until you bring the center instrument
+lights up, at which point it dims with the rheostat for night flying.
+</p>
+</section>
+
+<!-- ================================================= 6 Troubleshooting -->
+<section id="s6">
+<h2><span class="num">6&nbsp;</span>Troubleshooting</h2>
+
+<p>
+This section covers problems with the plugin itself. For a display that is dark or
+dashing during normal operation, see sections 3.10 and 5.7 first &mdash; most of
+those are the device working correctly.
+</p>
+
+<table>
+  <thead><tr><th style="width:34%">Symptom</th><th>Cause and fix</th></tr></thead>
+  <tbody>
+    <tr>
+      <th>No Safe Flight entry in the Plugins menu</th>
+      <td>The plugin did not load. Check the folder is at
+          <code>Resources/plugins/SafeFlightN1/</code> with <code>mac_x64/</code>
+          inside it, and clear the macOS quarantine flag (section 2.2).
+          <code>Log.txt</code> will say whether it loaded.</td>
+    </tr>
+    <tr>
+      <th>Menu items grayed out</th>
+      <td>You are not in the TorqueSim CJ525, or the aircraft&rsquo;s systems have
+          not finished loading. Wait a few seconds after the flight starts. If it
+          never enables, <code>Log.txt</code> names the dataref it is waiting on.</td>
+    </tr>
+    <tr>
+      <th>Window opens but the plate is flat gray with no knob</th>
+      <td>The <code>assets/</code> folder is missing or incomplete. Reinstall,
+          keeping the folder structure intact.</td>
+    </tr>
+    <tr>
+      <th>Display always dashes, in every mode</th>
+      <td>The chart files are missing. Check <code>data/</code> contains all eight
+          CSV files, and look for a &ldquo;tables missing or malformed&rdquo; line
+          in <code>Log.txt</code>.</td>
+    </tr>
+    <tr>
+      <th>Display dashes in one mode only</th>
+      <td>Normal. Check the mode is valid for your phase of flight, that anti-ice is
+          all-on or all-off, and that your temperature and altitude are inside the
+          chart (section 4).</td>
+    </tr>
+    <tr>
+      <th>Display is dark and will not come back</th>
+      <td>If the recess is dead black, restore avionics power and check the N<sub>1</sub> IND
+          breaker is in. If the ghost segments are visible, it is a latched
+          self-test failure &mdash; pull and reset the breaker from the plugin menu.</td>
+    </tr>
+    <tr>
+      <th><span class="readout">888</span> that will not clear</th>
+      <td>Standby after landing. Press or turn the knob. If it returns to
+          <span class="readout">888</span> immediately, the self-test is still
+          running &mdash; give it five seconds.</td>
+    </tr>
+    <tr>
+      <th>The number disagrees with a chart</th>
+      <td>Check you are comparing against the same schedule and anti-ice state, and
+          remember the device interpolates where a chart prints steps. The
+          underlying data is community-sourced and approximate (section 4).</td>
+    </tr>
+    <tr>
+      <th>Window is off screen, or the wrong shape</th>
+      <td>Delete <code>settings.ini</code> from the plugin folder and restart. The
+          window returns to a centered default.</td>
+    </tr>
+    <tr>
+      <th>Window will not move when dragged</th>
+      <td>You are on a control. Drag from the plate itself, clear of the knob, the
+          legends and the three live corners.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+<code>Log.txt</code> sits at the top level of your X-Plane 12 folder and is rewritten
+every launch. Every message the plugin writes is prefixed <code>SafeFlightN1:</code>,
+so searching for that string finds all of them.
+</p>
+</section>
+
+<!-- ====================================================== 7 Developers -->
+<section id="s7">
+<h2><span class="num">7&nbsp;</span>Developers</h2>
+
+<p>
+The plugin publishes its full state as datarefs and its every control as a command,
+so a home cockpit can drive a real knob and a real display, and companion scripts
+can read the target. Nothing here is needed to fly the device.
+</p>
+
+<h3>Published datarefs</h3>
+<p>Read-only unless noted.</p>
+<table>
+  <thead><tr><th style="width:38%">Dataref</th><th style="width:10%">Type</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><th><code>sfn1/target_n1</code></th><td>float</td><td>The displayed N<sub>1</sub> target in percent, or <code>-1</code> when there is no valid target</td></tr>
+    <tr><th><code>sfn1/mode</code></th><td>int</td><td>Knob position: 0 CLB, 1 TO/GA, 2 CRU</td></tr>
+    <tr><th><code>sfn1/display_state</code></th><td>int</td><td>What the readout is showing; see below</td></tr>
+    <tr><th><code>sfn1/selected_temp_c</code></th><td>float</td><td>The dialed temperature in &deg;C, or <code>-999</code> when none is set</td></tr>
+    <tr><th><code>sfn1/rat_c</code></th><td>float</td><td>Ram air temperature in &deg;C as the device sees it</td></tr>
+    <tr><th><code>sfn1/air_data_failed</code></th><td>int</td><td>1 when an air data source has failed</td></tr>
+    <tr><th><code>sfn1/breaker_pulled</code></th><td>int</td><td><strong>Writable.</strong> 1 while the N<sub>1</sub> IND breaker is pulled</td></tr>
+  </tbody>
+</table>
+
+<table class="keep">
+  <thead><tr><th style="width:38%"><code>display_state</code></th><th>Readout</th></tr></thead>
+  <tbody>
+    <tr><th>0 &mdash; Off</th><td>Nothing drawn; unpowered</td></tr>
+    <tr><th>1 &mdash; Self-test</th><td><span class="readout">888</span></td></tr>
+    <tr><th>2 &mdash; Dashes</th><td><span class="readout">&ndash;&ndash;&ndash;</span></td></tr>
+    <tr><th>3 &mdash; RAT</th><td>Ram air temperature, knob held</td></tr>
+    <tr><th>4 &mdash; Selected temp</th><td>The dialed temperature, blinking</td></tr>
+    <tr><th>5 &mdash; N<sub>1</sub></th><td>The target; <code>target_n1</code> is valid</td></tr>
+    <tr><th>6 &mdash; Fail</th><td>Blank but energized</td></tr>
+  </tbody>
+</table>
+
+<h3>Commands</h3>
+<table>
+  <thead><tr><th style="width:38%">Command</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><th><code>sfn1/toggle_window</code></th><td>Show or hide the window</td></tr>
+    <tr><th><code>sfn1/mode_up</code></th><td>One detent toward CRU</td></tr>
+    <tr><th><code>sfn1/mode_down</code></th><td>One detent toward CLB</td></tr>
+    <tr><th><code>sfn1/knob_press</code></th><td>Hold the knob pressed</td></tr>
+    <tr><th><code>sfn1/temp_up</code></th><td>Selected temperature up 1&nbsp;&deg;C</td></tr>
+    <tr><th><code>sfn1/temp_down</code></th><td>Selected temperature down 1&nbsp;&deg;C</td></tr>
+    <tr><th><code>sfn1/breaker_pull</code></th><td>Pull the N<sub>1</sub> IND breaker</td></tr>
+    <tr><th><code>sfn1/breaker_reset</code></th><td>Reset the N<sub>1</sub> IND breaker</td></tr>
+    <tr><th><code>sfn1/breaker_toggle</code></th><td>Pull or reset, whichever applies</td></tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <p class="callout__label">Note</p>
+  <p>
+    <code>sfn1/knob_press</code> is a <em>hold</em> command: it stays pressed for as
+    long as the binding is held, so an encoder&rsquo;s push switch maps to it
+    directly. Bind the encoder&rsquo;s rotation to
+    <code>sfn1/temp_up</code>&thinsp;/&thinsp;<code>temp_down</code> and you have the
+    real knob&rsquo;s press-and-rotate behavior. Note that
+    <code>temp_up</code>&thinsp;/&thinsp;<code>temp_down</code> only take effect on
+    the ground and while powered.
+  </p>
+</div>
+
+<h3>Driving the device from outside</h3>
+<p>
+For test rigs and panel calibration the plugin can be fed synthetic inputs instead
+of the aircraft&rsquo;s. Set <code>sfn1/test_override_enable</code> to 1 and the
+device reads these instead of the sim &mdash; and runs in any aircraft, not just the
+CJ525:
+</p>
+<table>
+  <thead><tr><th style="width:44%">Dataref</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><th><code>sfn1/test_override_rat_c</code></th><td>Ram air temperature, &deg;C</td></tr>
+    <tr><th><code>sfn1/test_override_pa_ft</code></th><td>Pressure altitude, ft</td></tr>
+    <tr><th><code>sfn1/test_override_on_ground</code></th><td>0 airborne, 1 on the ground</td></tr>
+    <tr><th><code>sfn1/test_override_anti_ice</code></th><td>0 off, 1 partial, 2 all on</td></tr>
+    <tr><th><code>sfn1/test_override_powered</code></th><td>0 or 1</td></tr>
+    <tr><th><code>sfn1/test_override_air_data_failed</code></th><td>0 or 1</td></tr>
+  </tbody>
+</table>
+<p>
+Set <code>sfn1/test_override_enable</code> back to 0 to hand control to the sim
+again. The overrides are always available; they are not a debug build.
+</p>
+<p>
+The quickest way to exercise all of this is over X-Plane&rsquo;s UDP interface, with
+<em>Accept incoming connections</em> enabled in the network settings. The plugin
+ships a dependency-free helper for exactly that:
+</p>
+<pre><code>python3 scripts/xp_udp.py set sfn1/test_override_enable 1
+python3 scripts/xp_udp.py set sfn1/test_override_rat_c 15
+python3 scripts/xp_udp.py set sfn1/test_override_pa_ft 0
+python3 scripts/xp_udp.py cmnd sfn1/mode_up
+python3 scripts/xp_udp.py get sfn1/target_n1 sfn1/display_state</code></pre>
+</section>
+
+<!-- ============================================ 8 Credits and Licence -->
+<section id="s8">
+<h2><span class="num">8&nbsp;</span>Credits and Licence</h2>
+
+<h3 id="s8-1">The performance data</h3>
+<p>
+The eight N<sub>1</sub> schedules this device reads are not the plugin
+author&rsquo;s work, and the plugin would have nothing to display without them.
+</p>
+<p>
+They were transcribed from the <em>TorqueSim Cessna Citation 525 Performance
+Manual</em>, a community-built chart set assembled and published free by
+<strong>hornetaircraft</strong>, with <strong>Aviationsocal</strong>,
+<strong>Kaboom</strong>, <strong>Jetpipeoverheat</strong> and
+<strong>Cptlee</strong> assisting. It is <em>not</em> a TorqueSim, X-Aviation or
+Textron document and it does not ship with the aircraft; it is a free download
+from the X-Pilot forums:
+</p>
+<p><a
+href="https://forums.x-pilot.com/files/file/1613-torquesim-cessna-citation-525-performance-manual/">forums.x-pilot.com/files/file/1613-torquesim-cessna-citation-525-performance-manual/</a></p>
+<p>
+If you want these schedules for a project of your own, please take them from the
+source above and credit its authors.
+</p>
+
+<h3 id="s8-2">Licence</h3>
+<p>
+The plugin itself is MIT licensed; the full text is in <code>LICENSE</code>
+beside this manual. The thrust tables in <code>data/</code> are covered
+separately by <code>data/LICENSE.md</code> &mdash; no ownership of the
+performance figures is claimed.
+</p>
+<p>
+The faceplate and knob artwork are an original recreation. The legend typeface
+is Jost, under the SIL Open Font License.
+</p>
+
+<h3 id="s8-3">Disclaimer</h3>
+<p>
+Not affiliated with, endorsed by, or supported by Safe Flight Instrument, LLC,
+Textron Aviation, or TorqueSim. The performance data is community-sourced and
+approximate. This is an advisory simulation for entertainment &mdash;
+<strong>not for real world use</strong>.
+</p>
+</section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Safe Flight N1 Computer (P/N C-12732-1) faceplate, 3x physical scale.
+  Physical unit ~2.6 in wide; proportions measured from reference/photos/
+  c12732_1.jpg (straight-on spare) and jetaviva/IMG_2762 + zoom_n1_big
+  (in-panel). Rectangular charcoal plate with a chamfered octagonal face
+  and corner screws on the recessed corner triangles. The display window
+  is the empty recess only (the plugin draws the digits) and the knob
+  lives in knob.svg. Jost's digit 1 is a plain vertical bar with no flag
+  and no foot serif, which is how the real plate engraves the 1 of N1.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="936" viewBox="0 0 1200 936">
+  <defs>
+    <style>
+      @font-face {
+        font-family: 'Jost';
+        src: url('fonts/Jost-VariableFont_wght.ttf') format('truetype');
+        font-weight: 100 900;
+      }
+    </style>
+    <linearGradient id="plate-v" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#333237"/>
+      <stop offset="0.5" stop-color="#2b2b2d"/>
+      <stop offset="1" stop-color="#232226"/>
+    </linearGradient>
+    <radialGradient id="plate-sheen" cx="0.48" cy="0.32" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0.015"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.10"/>
+    </radialGradient>
+    <!-- Recess wall under an overhead light: the upper wall faces down and
+         falls into shadow, the lower wall faces up and catches the light. -->
+    <linearGradient id="bezel-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#040405"/>
+      <stop offset="0.12" stop-color="#0d0d0f"/>
+      <stop offset="0.55" stop-color="#26262b"/>
+      <stop offset="0.88" stop-color="#454550"/>
+      <stop offset="1" stop-color="#5f5f6a"/>
+    </linearGradient>
+    <linearGradient id="bezel-side" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.30"/>
+      <stop offset="0.5" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.07"/>
+    </linearGradient>
+    <linearGradient id="window-shadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.75"/>
+      <stop offset="0.30" stop-color="#000000" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Contact shadow the knob casts on the plate. Solid inside the knob's
+         own radius, where the sprite covers it, and fading out past the rim. -->
+    <radialGradient id="knob-shadow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.895" stop-color="#000000" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="screw-metal" cx="0.38" cy="0.34" r="0.85">
+      <stop offset="0" stop-color="#4a4a4f"/>
+      <stop offset="0.6" stop-color="#2e2e32"/>
+      <stop offset="1" stop-color="#141416"/>
+    </radialGradient>
+    <!-- The 1 on the real plate is engraved as a plain vertical bar, full cap
+         height, with no flag and no foot serif. Jost's digit one is flagged and
+         sits 1.7 short of cap height, so the title keeps the real character for
+         the text and this mask drops the drawn glyph; the bar itself is struck
+         separately, on the N's cap line and at the measured stem width. The box
+         is this title's metrics (digit cell x 388..416) and must be re-measured
+         if the size or tracking changes. -->
+    <mask id="drop-digit-one" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="936">
+      <rect x="0" y="0" width="1200" height="936" fill="#ffffff"/>
+      <rect x="388" y="85" width="28" height="65" fill="#000000"/>
+    </mask>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.5 0"/>
+      <feComposite operator="in" in2="SourceGraphic"/>
+    </filter>
+  </defs>
+
+  <!-- Plate base -->
+  <rect x="0" y="0" width="1200" height="936" rx="6" fill="url(#plate-v)"/>
+  <rect x="0" y="0" width="1200" height="936" rx="6" fill="url(#plate-sheen)"/>
+
+  <!-- Recessed corner triangles behind the octagonal face -->
+  <g id="corner-triangles" fill="#26252a">
+    <path d="M 0 0 H 288 L 0 243 Z"/>
+    <path d="M 1200 0 H 912 L 1200 243 Z"/>
+    <path d="M 0 936 H 288 L 0 693 Z"/>
+    <path d="M 1200 936 H 912 L 1200 693 Z"/>
+  </g>
+
+  <!-- Chamfer bevels: dark cut line with a brushed highlight on the face side -->
+  <g id="chamfer-bevels" fill="none" stroke-linecap="round">
+    <g stroke="#101013" stroke-width="3">
+      <path d="M 288 0 L 0 243"/>
+      <path d="M 912 0 L 1200 243"/>
+      <path d="M 288 936 L 0 693"/>
+      <path d="M 912 936 L 1200 693"/>
+    </g>
+    <g stroke-width="2">
+      <path d="M 291 4 L 4 246" stroke="#5c5c63" stroke-opacity="0.8"/>
+      <path d="M 909 4 L 1196 246" stroke="#55555c" stroke-opacity="0.7"/>
+      <path d="M 291 932 L 4 690" stroke="#3d3d43" stroke-opacity="0.6"/>
+      <path d="M 909 932 L 1196 690" stroke="#3d3d43" stroke-opacity="0.6"/>
+    </g>
+  </g>
+
+  <!-- Plate rim: top-lit edge -->
+  <rect x="1.5" y="1.5" width="1197" height="933" rx="5" fill="none" stroke="#0d0d0e" stroke-width="3"/>
+  <path d="M 292 3.5 H 908" stroke="#66666d" stroke-width="1.6" fill="none"/>
+  <path d="M 292 932.5 H 908" stroke="#08080a" stroke-width="1.6" fill="none"/>
+
+  <!-- Corner mounting screws (installed, black-oxide Phillips) -->
+  <g id="screws">
+    <g transform="translate(86,90)">
+      <circle r="30" fill="#151517"/>
+      <circle r="26" fill="url(#screw-metal)"/>
+      <g transform="rotate(18)" stroke="#0b0b0c" stroke-width="7" stroke-linecap="round">
+        <path d="M -17 0 H 17"/><path d="M 0 -17 V 17"/>
+      </g>
+      <path d="M -18 -12 A 22 22 0 0 1 -2 -21" fill="none" stroke="#7a7a80" stroke-width="2" stroke-opacity="0.6"/>
+    </g>
+    <g transform="translate(1114,90)">
+      <circle r="30" fill="#151517"/>
+      <circle r="26" fill="url(#screw-metal)"/>
+      <g transform="rotate(-31)" stroke="#0b0b0c" stroke-width="7" stroke-linecap="round">
+        <path d="M -17 0 H 17"/><path d="M 0 -17 V 17"/>
+      </g>
+      <path d="M -18 -12 A 22 22 0 0 1 -2 -21" fill="none" stroke="#7a7a80" stroke-width="2" stroke-opacity="0.6"/>
+    </g>
+    <g transform="translate(86,846)">
+      <circle r="30" fill="#151517"/>
+      <circle r="26" fill="url(#screw-metal)"/>
+      <g transform="rotate(64)" stroke="#0b0b0c" stroke-width="7" stroke-linecap="round">
+        <path d="M -17 0 H 17"/><path d="M 0 -17 V 17"/>
+      </g>
+      <path d="M -18 -12 A 22 22 0 0 1 -2 -21" fill="none" stroke="#7a7a80" stroke-width="2" stroke-opacity="0.6"/>
+    </g>
+    <g transform="translate(1114,846)">
+      <circle r="30" fill="#151517"/>
+      <circle r="26" fill="url(#screw-metal)"/>
+      <g transform="rotate(-7)" stroke="#0b0b0c" stroke-width="7" stroke-linecap="round">
+        <path d="M -17 0 H 17"/><path d="M 0 -17 V 17"/>
+      </g>
+      <path d="M -18 -12 A 22 22 0 0 1 -2 -21" fill="none" stroke="#7a7a80" stroke-width="2" stroke-opacity="0.6"/>
+    </g>
+  </g>
+
+  <!-- Engraved legends. Jost is a variable font, so the weight is dialed to
+       the stroke-to-cap ratio measured off the photographed plate (0.129)
+       rather than snapped to a named face. The title carries the real digit 1
+       for its text, but drops the drawn glyph and strikes the bar the plate
+       engraves in its place (see drop-digit-one). -->
+  <g id="legends" fill="#e8e7e1" font-family="Jost" text-anchor="middle">
+    <text x="584" y="144" font-size="68" font-weight="430" letter-spacing="17" word-spacing="-13"
+          mask="url(#drop-digit-one)">N1 SETTING</text>
+    <rect x="406.33" y="94" width="6.34" height="50" fill="#e8e7e1"/>
+    <text x="582" y="547" font-size="48" font-weight="430" letter-spacing="2">TO/GA</text>
+    <text x="309" y="588" font-size="48" font-weight="430" letter-spacing="3">CLB</text>
+    <text x="861" y="588" font-size="48" font-weight="430" letter-spacing="3">CRU</text>
+    <text x="583" y="903" font-size="39" font-weight="400" letter-spacing="7">PUSH TEMP SET</text>
+  </g>
+
+  <!-- Mode-arc leaders. Each leader runs in from its label and then turns
+       onto the radius of its own detent, so the knob's index lies along the
+       leader when that mode is selected. The elbow is where the 40-degree
+       ray crosses the label centerline; the leader runs on under the knob
+       skirt from there. TO/GA is the same construction at 0 degrees. -->
+  <g id="mode-arc" stroke="#dcdbd5" stroke-width="3.5" stroke-linecap="round" fill="none">
+    <path d="M 371 572 H 456.1 L 495.2 618.6"/>
+    <path d="M 793 572 H 707.9 L 668.8 618.6"/>
+    <path d="M 582 556 V 618.6"/>
+  </g>
+
+  <!-- Display window: a recess sunk into the plate. The bevel ring is the
+       wall of the recess; the opening itself matches assets/layout.json so
+       the plugin's digits land inside it. -->
+  <g id="display-window">
+    <rect x="336" y="183" width="486" height="278" rx="30" fill="url(#bezel-wall)"/>
+    <rect x="336" y="183" width="486" height="278" rx="30" fill="url(#bezel-side)"/>
+    <rect x="337" y="184" width="484" height="276" rx="29" fill="none" stroke="#1c1b20" stroke-width="2.5"/>
+    <rect x="360" y="207" width="438" height="230" rx="12" fill="#070708"/>
+    <rect x="360" y="207" width="438" height="230" rx="12" fill="url(#window-shadow)"/>
+    <rect x="361" y="208" width="436" height="228" rx="11" fill="none" stroke="#000000" stroke-opacity="0.8" stroke-width="2.5"/>
+  </g>
+
+  <!-- Knob seat: the shaft recess is covered by knob.png at runtime; the
+       shadow ring is what makes the knob read as standing proud of the
+       plate, and it sits low because the light comes from above. -->
+  <g id="knob-seat">
+    <circle cx="582" cy="727" r="162" fill="url(#knob-shadow)"/>
+    <circle cx="582" cy="722" r="58" fill="#0d0d0f"/>
+    <circle cx="582" cy="722" r="58" fill="none" stroke="#333338" stroke-width="2.5"/>
+    <circle cx="582" cy="722" r="20" fill="#212124"/>
+  </g>
+
+  <!-- Safe Flight oval logo (separable layer). Heavy oval outline over an
+       italic wordmark; under it a straight rule, flush with the wordmark at
+       both ends, whose right end tapers to a tip with a barb hanging below:
+       a half-arrowhead on the underside, sweeping back down and to the left.
+       The wordmark spans 0.76 of the oval width, as it does on the real plate.
+       The whole mark sits clear of the knob skirt. -->
+  <g id="safeflight-logo">
+    <ellipse cx="258" cy="738" rx="150" ry="56" fill="none" stroke="#dcdbd5" stroke-width="7"/>
+    <text x="258" y="742" fill="#e8e7e1" font-family="Baskerville, Georgia, serif"
+          font-style="italic" font-weight="600" font-size="34" letter-spacing="1"
+          text-anchor="middle">SAFE FLIGHT</text>
+    <path d="M 147 755 H 368 L 374 760 L 350 770 L 356 762 H 147 Z" fill="#dcdbd5"/>
+  </g>
+
+  <!-- Brushed grain over the whole plate -->
+  <rect x="0" y="0" width="1200" height="936" rx="6" fill="#808080" opacity="0.08" filter="url(#grain)"/>
+</svg>

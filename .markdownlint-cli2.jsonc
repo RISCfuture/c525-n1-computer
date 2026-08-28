@@ -1,0 +1,24 @@
+{
+  // The docs here wrap at 100, not markdownlint's default 80, and tables and
+  // fenced code are left alone: rewrapping them costs readability.
+  "config": {
+    "MD013": {
+      "line_length": 100,
+      "tables": false,
+      "code_blocks": false
+    }
+  },
+  "globs": ["**/*.md"],
+  "ignores": [
+    "lib/imgui/**",
+    "lib/ImgWindow/**",
+    "lib/stb/**",
+    "lib/doctest/**",
+    "SDK/**",
+    "reference/**",
+    "dist/**",
+    "build/**",
+    "vendor/**",
+    "node_modules/**"
+  ]
+}

@@ -1,0 +1,404 @@
+/* Print-first stylesheet for the Safe Flight N1 Computer manual.
+   Geometry is declared once, in millimetres, and shared: @page turns it into
+   paper margins, the screen view turns it into padding on a Letter-wide sheet.
+   The gutter is content padding in both, so the two can never disagree. */
+
+/* The Jost @font-face lives in jost-embedded.css; see the note there. */
+
+:root {
+    --sheet-w: 215.9mm;             /* US Letter, matching the source charts */
+    --pad-top: 18mm;
+    --pad-side: 20mm;
+    --pad-bottom: 20mm;
+    /* Section numbers and callout labels hang in this gutter. It is padding on
+       the content, not page margin: Chrome clips anything drawn outside the
+       @page box, so marginalia has to sit inside it. */
+    --gutter: 26mm;
+    --gutter-pull: -26mm;
+
+    --ink: #2b2b2d;                /* plate charcoal */
+    --recess: #070708;             /* display recess */
+    --aged: #e8e7e1;               /* legend white */
+    --amber: #ffb230;              /* the LED */
+    --rule: #c9c7c0;
+    --muted: #6b6b70;
+    --paper: #fff;
+
+    --sans: Optima, Seravek, Candara, "Gill Sans Nova", "Segoe UI", sans-serif;
+    --display: "Jost", "Futura", var(--sans);
+}
+
+/* ---------------------------------------------------------------- shared */
+
+* { box-sizing: border-box; }
+
+.toc, main > section { padding-left: var(--gutter); }
+
+body {
+    margin: 0;
+    font: 400 10.5pt/1.55 var(--sans);
+    color: var(--ink);
+    background: var(--paper);
+    hyphens: none;                 /* dataref names must never break */
+    text-wrap: pretty;
+}
+
+h1, h2, h3 {
+    font-family: var(--display);
+    font-variation-settings: "wght" 430;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--ink);
+}
+
+h2 {
+    position: relative;
+    font-size: 15pt;
+    line-height: 1.2;
+    margin: 0 0 8mm;
+    padding-bottom: 3mm;
+    border-bottom: 0.4mm solid var(--ink);
+}
+
+h3 {
+    font-size: 10pt;
+    letter-spacing: 0.11em;
+    margin: 9mm 0 3mm;
+}
+
+h2 .num {
+    position: absolute;
+    left: var(--gutter-pull);
+    font-size: 15pt;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+p, ul, ol, dl { margin: 0 0 3.6mm; }
+ul, ol { padding-left: 5mm; }
+li { margin-bottom: 1.4mm; }
+
+a { color: inherit; }
+
+strong { font-weight: 700; }
+
+/* The 1 in N1. line-height 0 keeps it from opening up the leading. */
+sub { font-size: 0.68em; line-height: 0; vertical-align: -0.22em; }
+
+code, .dref {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.88em;
+    letter-spacing: -0.01em;
+}
+
+/* An inline scrap of the amber readout, for "the display shows 96.7". */
+.readout {
+    background: var(--recess);
+    color: var(--amber);
+    font-family: var(--display);
+    font-variation-settings: "wght" 500;
+    font-size: 0.88em;
+    letter-spacing: 0.1em;
+    padding: 0.16em 0.42em 0.2em;
+    border-radius: 1px;
+    white-space: nowrap;
+    print-color-adjust: exact;
+}
+
+/* Faceplate legends quoted in running text. */
+.legend {
+    font-family: var(--display);
+    font-variation-settings: "wght" 500;
+    letter-spacing: 0.1em;
+    font-size: 0.92em;
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- tables */
+
+/* Short tables that read as a single unit and must not shed a stray row. */
+.keep { break-inside: avoid; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 5mm;
+    font-size: 9pt;
+    font-variant-numeric: tabular-nums;
+}
+
+thead th {
+    font-family: var(--display);
+    font-variation-settings: "wght" 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 7.5pt;
+    text-align: left;
+    color: var(--muted);
+    padding: 0 3mm 1.6mm 0;
+    border-bottom: 0.4mm solid var(--ink);
+}
+
+/* A dataref or enum name in a header keeps its own casing. */
+thead th code { text-transform: none; letter-spacing: 0; font-size: 8pt; }
+
+tbody td, tbody th {
+    text-align: left;
+    font-weight: 400;
+    vertical-align: top;
+    padding: 1.6mm 3mm 1.6mm 0;
+    border-bottom: 0.2mm solid var(--rule);
+}
+
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: none; }
+td:last-child, th:last-child { padding-right: 0; }
+
+/* -------------------------------------------------------------- figures */
+
+figure {
+    margin: 6mm 0;
+    break-inside: avoid;
+}
+
+figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 190mm;
+    object-fit: contain;
+}
+
+figcaption {
+    margin-top: 2.2mm;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: var(--muted);
+    break-before: avoid;
+}
+
+figcaption b {
+    font-family: var(--display);
+    font-variation-settings: "wght" 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    color: var(--ink);
+}
+
+/* The device shots are 1152x900; 108mm renders them at ~271 dpi and close to
+   the real 2.6 in faceplate's size on the page. */
+.fig--device img { width: 108mm; }
+
+.fig--wide {
+    margin-left: var(--gutter-pull);
+    width: calc(100% + var(--gutter));
+}
+
+/* Two device shots side by side, for Off against Fail. */
+.fig--pair { display: flex; gap: 6mm; }
+.fig--pair img { flex: 1; width: auto; min-width: 0; }
+
+/* ------------------------------------------------------------- callouts */
+
+.callout {
+    position: relative;
+    border-block: 0.35mm solid var(--rule);
+    padding: 3.5mm 0;
+    margin: 6mm 0;
+    break-inside: avoid;
+}
+
+.callout > :last-child { margin-bottom: 0; }
+
+.callout__label {
+    position: absolute;
+    left: var(--gutter-pull);
+    font-family: var(--display);
+    font-variation-settings: "wght" 500;
+    font-size: 7.5pt;
+    line-height: 1.9;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.callout--caution {
+    border-block-color: var(--amber);
+    print-color-adjust: exact;
+}
+
+.callout--caution .callout__label { color: var(--ink); }
+
+/* ---------------------------------------------------------------- cover */
+
+.cover {
+    page: cover;
+    break-after: page;
+    background: var(--recess);
+    color: var(--aged);
+    display: grid;
+    grid-template-rows: 56% 1fr;
+    print-color-adjust: exact;
+}
+
+.cover__shot {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cover__plate { padding: 14mm 20mm 20mm 46mm; align-self: end; }
+
+.cover__eyebrow {
+    font-family: var(--display);
+    font-variation-settings: "wght" 500;
+    font-size: 8.5pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6mm;
+}
+
+.cover__title {
+    font-family: var(--display);
+    font-variation-settings: "wght" 430;
+    font-size: 32pt;
+    line-height: 1.06;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--aged);
+}
+
+.cover__title::after {
+    content: "";
+    display: block;
+    width: 34mm;
+    height: 1.1mm;
+    background: var(--amber);
+    margin-top: 7mm;
+    print-color-adjust: exact;
+}
+
+.cover__sub { margin: 6mm 0 0; font-size: 10.5pt; color: var(--aged); }
+
+.cover__pn {
+    margin: 2mm 0 0;
+    font-family: var(--display);
+    font-variation-settings: "wght" 500;
+    font-size: 9pt;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    print-color-adjust: exact;
+}
+
+.cover__fine {
+    margin: 10mm 0 0;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 120mm;
+}
+
+/* ------------------------------------------------------------------ TOC */
+
+.toc ol { list-style: none; padding: 0; margin: 0; }
+.toc > ol > li { margin-bottom: 1.8mm; }
+
+.toc a {
+    text-decoration: none;
+    font-family: var(--display);
+    font-variation-settings: "wght" 430;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-size: 10.5pt;
+}
+
+.toc .sub { margin: 1mm 0 0 8mm; }
+
+.toc .sub li { margin-bottom: 0.6mm; }
+
+.toc .sub a {
+    font-family: var(--sans);
+    font-variation-settings: normal;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 9pt;
+    color: var(--muted);
+}
+
+/* --------------------------------------------------------------- screen */
+
+@media screen {
+    html { background: #1b1b1d; }
+
+    body { padding: 3rem 1rem; background: transparent; }
+
+    .sheet {
+        width: var(--sheet-w);
+        max-width: 100%;
+        margin-inline: auto;
+        padding: var(--pad-top) var(--pad-side) var(--pad-bottom) var(--pad-side);
+        background: var(--paper);
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.5), 0 24px 60px rgb(0 0 0 / 0.45);
+    }
+
+    .cover {
+        width: var(--sheet-w);
+        max-width: 100%;
+        min-height: 279.4mm;
+        margin: 0 auto 2rem;
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.5), 0 24px 60px rgb(0 0 0 / 0.45);
+    }
+}
+
+@media screen and (max-width: 820px) {
+    :root {
+        --pad-side: 1.25rem;
+        --gutter: 0mm;
+        --gutter-pull: 0mm;
+    }
+
+    .sheet { box-shadow: none; }
+    .cover__plate { padding: 8mm 1.25rem 10mm; }
+    h2 .num, .callout__label { position: static; display: block; margin-bottom: 1mm; }
+    .fig--pair { display: block; }
+}
+
+/* ---------------------------------------------------------------- print */
+
+@media print {
+    @page {
+        size: letter;
+        margin: var(--pad-top) var(--pad-side) var(--pad-bottom) var(--pad-side);
+        font-family: Optima, Seravek, Candara, "Segoe UI", sans-serif;
+        font-size: 7.5pt;
+        color: #6b6b70;
+
+        @bottom-left { content: "Safe Flight N\2081  Computer"; letter-spacing: 0.06em; }
+        @bottom-right { content: counter(page); font-variant-numeric: tabular-nums; }
+    }
+
+    @page cover {
+        margin: 0;
+        @bottom-left { content: none; }
+        @bottom-right { content: none; }
+    }
+
+    /* The cover is one full page; its grid needs a definite height to divide. */
+    .cover { height: 279.4mm; }
+
+    h2 { break-before: page; }
+    .toc h2 { break-before: auto; }
+    h1, h2, h3 { break-after: avoid; break-inside: avoid; }
+    p, li { orphans: 3; widows: 3; }
+
+    /* A code block stays whole, and with the sentence that introduces it. */
+    pre { break-inside: avoid; break-before: avoid; }
+
+    thead { display: table-header-group; }
+    tr, th, td { break-inside: avoid; }
+
+    a { text-decoration: none; }
+}

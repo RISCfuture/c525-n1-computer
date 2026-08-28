@@ -1,0 +1,14 @@
+# Matches the style the sources were written in: 4-space indent, 95-column
+# lines, attached braces, and single-line bodies left alone.
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 95
+AccessModifierOffset: -4
+DerivePointerAlignment: false
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+IncludeBlocks: Preserve
+SortIncludes: CaseSensitive

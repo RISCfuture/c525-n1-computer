@@ -1,0 +1,12 @@
+# HTTPS rather than SSH so CI can authenticate with
+# MATCH_GIT_BASIC_AUTHORIZATION; see fastlane/.env.example.
+git_url("https://github.com/RISCfuture/certificates.git")
+storage_mode("git")
+type("developer_id")
+platform("macos")
+team_id("2NFSK2WB24")
+
+# The plugin is a plain Mach-O bundle with no entitlements, so it needs the
+# certificate and nothing else.
+app_identifier([])
+skip_provisioning_profiles(true)

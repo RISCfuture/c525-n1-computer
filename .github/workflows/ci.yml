@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # n1_tables and n1_computer are pure C++ with no XPLM dependency, so the
+      # table lookup and the device state machine are tested without a sim.
+      - name: Run the host tests
+        run: tests/run_tests.sh
+        env:
+          CXX: g++
+
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac_x64
+          - os: windows-latest
+            platform: win_x64
+          - os: ubuntu-latest
+            platform: lin_x64
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install OpenGL headers
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libgl1-mesa-dev
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Check the plugin landed where X-Plane looks for it
+        shell: bash
+        run: test -f "dist/SafeFlightN1/${{ matrix.platform }}/SafeFlightN1.xpl"

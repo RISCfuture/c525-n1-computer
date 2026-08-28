@@ -1,0 +1,78 @@
+# frozen_string_literal: true
+
+require "json"
+require "tempfile"
+
+# The .xpl is a bare Mach-O bundle, so it is signed directly rather than through
+# an Xcode archive, and notarization is submitted for the release zip: `stapler`
+# cannot staple a ticket to a loose bundle or to a zip, so Gatekeeper clears the
+# plugin by online lookup instead.
+platform :mac do
+  desc "Signs a built .xpl with the Developer ID Application certificate"
+  lane :sign do |options|
+    path = options.fetch(:path) { UI.user_error!("pass path:<the .xpl to sign>") }
+    UI.user_error!("no such file: #{path}") unless File.exist?(path)
+
+    # Only on a GitHub runner, never on a workstation: setup_ci creates a
+    # temporary keychain, makes it the *default*, and leaves it in the search
+    # list, because it is written for machines that are thrown away afterwards.
+    # A generic CI=true -- which plenty of local tooling sets -- must not be
+    # enough to trigger that.
+    setup_ci if ENV["GITHUB_ACTIONS"]
+    match(readonly: true)
+
+    # An explicit identifier keeps the signature stable: codesign would
+    # otherwise derive one from whatever the file happens to be named.
+    sh("codesign", "--force", "--timestamp", "--options", "runtime",
+       "--identifier", "com.timothymorgan.safeflightn1",
+       "--sign", developer_id_identity, path)
+    sh("codesign", "--verify", "--strict", "--verbose=2", path)
+    UI.success("signed #{path}")
+  end
+
+  desc "Submits a zip to Apple for notarization and waits for the verdict"
+  lane :notarize_archive do |options|
+    archive = options.fetch(:archive) { UI.user_error!("pass archive:<the zip>") }
+    UI.user_error!("no such file: #{archive}") unless File.exist?(archive)
+
+    key = app_store_connect_key
+    with_temporary_key_file(key["key"]) do |key_path|
+      sh("xcrun", "notarytool", "submit", archive,
+         "--key", key_path,
+         "--key-id", key["key_id"],
+         "--issuer", key["issuer_id"],
+         "--wait", "--timeout", "30m")
+    end
+    UI.success("notarized #{archive}")
+  end
+end
+
+# The certificate common name changes when the certificate is renewed, so it is
+# read back from the keychain match just populated rather than hardcoded.
+def developer_id_identity
+  output = sh("security", "find-identity", "-v", "-p", "codesigning", log: false)
+  identity = output.lines.grep(/Developer ID Application/).first
+  UI.user_error!("match installed no Developer ID Application certificate") if identity.nil?
+  identity[/"([^"]+)"/, 1]
+end
+
+# bin/api-key in the certificates repo decrypts the App Store Connect key with
+# the same MATCH_PASSWORD that unlocks everything else there.
+def app_store_connect_key
+  repo = ENV.fetch("CERTIFICATES_REPO") do
+    UI.user_error!("set CERTIFICATES_REPO to a checkout of RISCfuture/certificates")
+  end
+  JSON.parse(sh(File.join(repo, "bin", "api-key"), "--stdout", log: false))
+end
+
+# notarytool wants a path, so the key touches the disk only for the length of
+# the submission, readable only by this user.
+def with_temporary_key_file(contents)
+  file = Tempfile.new(["AuthKey", ".p8"])
+  File.chmod(0o600, file.path)
+  file.write(contents)
+  file.close
+  yield file.path
+ensure
+  file&.unlink
+end

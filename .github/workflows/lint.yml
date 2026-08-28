@@ -1,0 +1,97 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cpp:
+    name: C++ format and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # Deliberately unpinned: a new release turning this red is how we hear
+      # about it. Reformat or refix rather than pinning back.
+      - name: Install clang tooling
+        run: pip install --quiet clang-format clang-tidy
+
+      - name: Check formatting
+        run: clang-format --dry-run -Werror src/*.cpp src/*.h tests/test_main.cpp
+
+      # OpenGL headers are a link-time dependency of the Linux target, so the
+      # compile database cannot be generated without them.
+      - name: Install OpenGL headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libgl1-mesa-dev
+
+      - name: Generate the compile database
+        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Lint
+        run: clang-tidy -p build src/*.cpp
+
+  dead-code:
+    name: Dead code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y cppcheck
+
+      # The XPluginStart family is called by the simulator and never from here,
+      # but cppcheck reads their external linkage and leaves them alone.
+      - name: Look for unused functions
+        run: |
+          cppcheck --enable=unusedFunction --inline-suppr \
+            --std=c++20 --language=c++ \
+            -I src -I SDK/CHeaders/XPLM \
+            --suppress=missingInclude --suppress=missingIncludeSystem \
+            --error-exitcode=1 --quiet \
+            src/
+
+  scripts:
+    name: Python and shell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install --quiet ruff
+
+      - name: Lint Python
+        run: |
+          ruff check scripts/
+          ruff format --check scripts/
+
+      - name: Lint shell
+        run: shellcheck scripts/*.sh tests/run_tests.sh
+
+  meta:
+    name: Workflows and Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint workflows
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v24

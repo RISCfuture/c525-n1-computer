@@ -1,0 +1,8 @@
+# The scripts/ helpers are developer tools, not shipped code: keep the rules
+# tight on correctness and imports, and leave stylistic opinions to the
+# formatter.
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
