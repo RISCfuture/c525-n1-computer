@@ -92,7 +92,7 @@ private:
     Output groundTargetDisplay(const InputSnapshot& input, bool antiIceOn) const;
     Output airborneTargetDisplay(const InputSnapshot& input, bool antiIceOn) const;
     Output takeoffDisplay(double oatC, double paFt, bool antiIceOn) const;
-    double isaReduction(const InputSnapshot& input) const;
+    double isaReduction(const InputSnapshot& input, bool antiIceOn) const;
     const std::optional<N1Table>& airborneSchedule(bool antiIceOn) const;
     Output n1From(const std::optional<N1Table>& table, double oatC, double paFt) const;
     Output dashes() const;

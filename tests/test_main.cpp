@@ -391,6 +391,12 @@ TEST_CASE("the hot-and-high trim, when it is switched on") {
     CHECK_NEAR(run(computer, airborneAt(-10.0, 30000.0), 0.2).value, 42.0, 1e-9);
     // A thousand feet lower the trim does not apply, so the raw 42.9 stands.
     CHECK_NEAR(run(computer, airborneAt(-10.0, 29000.0), 0.2).value, 42.9, 1e-9);
+
+    // Only the anti-ice-off charts publish the trim, so the wet schedule keeps
+    // its untrimmed 33.0 at the same conditions.
+    InputSnapshot iced = airborneAt(-10.0, 30000.0);
+    iced.antiIce = 2;
+    CHECK_NEAR(run(computer, iced, 0.2).value, 33.0, 1e-9);
 }
 
 TEST_CASE("the display reverts to 888 a minute after landing") {

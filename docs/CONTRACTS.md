@@ -146,8 +146,10 @@ tabulate for their own speed schedules (climb −26.0 at 25,000 through −46.0 
 41,000; cruise −24.0 at 30,000 through −39.0 at 41,000), interpolated by
 altitude — not against ambient ISA, since those figures already carry the ram
 rise. Above ISA+30 the second step holds rather than extrapolating a third.
-Go-around is never trimmed: its chart carries no such note and its 15,500 ft
-ceiling is below either altitude.
+Applied only to the anti-ice-off schedule. Figures 7-8 and 7-10 carry neither
+the note nor a standard-day RAT table, so the wet schedule is left alone rather
+than assuming the trim carries across. Go-around is never trimmed either: its
+chart has no such note and its 15,500 ft ceiling is below either altitude.
 
 Default off because the flight manual supplement does not say the device does
 this — the charts instruct the pilot, not the instrument — so the default keeps

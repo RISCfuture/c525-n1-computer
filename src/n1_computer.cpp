@@ -230,15 +230,17 @@ Output N1Computer::airborneTargetDisplay(const InputSnapshot& input, bool antiIc
     if (mode_ == Mode::ToGa && input.pressureAltFt > kGoAroundCeilingFt) return dashes();
     const Output target = n1From(airborneSchedule(antiIceOn), input.ratC, input.pressureAltFt);
     if (target.state != DisplayState::N1) return target;
-    return output(DisplayState::N1, target.value - isaReduction(input));
+    return output(DisplayState::N1, target.value - isaReduction(input, antiIceOn));
 }
 
 /// The Operating Manual trims climb thrust at and above 25,000 ft and cruise
-/// thrust at and above 30,000 ft when the day runs hot. Go-around is untrimmed:
-/// the takeoff/go-around chart carries no such note, and its ceiling is well
-/// below either altitude anyway.
-double N1Computer::isaReduction(const InputSnapshot& input) const {
-    if (!isaTrim_) return 0.0;
+/// thrust at and above 30,000 ft when the day runs hot. Only on the anti-ice-off
+/// charts: Figures 7-8 and 7-10 carry neither the note nor the standard-day RAT
+/// table the deviation is measured against, so the wet schedule is left alone
+/// rather than assuming the trim carries over. Go-around is untrimmed too - its
+/// chart has no such note, and its ceiling is below either altitude anyway.
+double N1Computer::isaReduction(const InputSnapshot& input, bool antiIceOn) const {
+    if (!isaTrim_ || antiIceOn) return 0.0;
     switch (mode_) {
         case Mode::Clb:
             if (input.pressureAltFt < kClimbIsaRat[0].paFt) return 0.0;
