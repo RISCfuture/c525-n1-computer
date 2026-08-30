@@ -194,3 +194,90 @@ aircraft reported `out_n1` = 97 against this plugin's 97.49; `out_n1` is an inte
 dataref, so the two agree. Driving the aircraft's popup UI would be needed for a full
 sweep; the cell-by-cell verification against the source charts above already covers the
 table values.
+
+## Independent check against the manufacturer's charts (2026-08-30)
+
+Everything above is community work. The **Cessna Model 525 Operating Manual**
+(525OMA-00, Section VII *Flight Planning and Performance*, Figures 7-6 to 7-10,
+pp. 7-10 to 7-14) is the first *manufacturer* source to reach this repo, so the
+tables were checked against it. It was supplied privately by a CJ1
+owner-operator on the condition that it is not distributed, so it is not in this
+repository; `scripts/digitize_om_charts.py` reads it from wherever you keep your
+own copy.
+
+**These are graphs, not tables.** Each chart is a family of straight rising
+lines, one per pressure altitude, clipped from above by a configuration cap:
+
+```text
+N1(RAT, PA) = min(rise_PA(RAT), cap_config(RAT))
+```
+
+which is where the flat "caps" already visible in these CSVs come from — the
+94.3 anti-ice ceiling that repeats across 1000-7000 ft is one cap line, read at
+successive altitudes.
+
+**Method.** Pages rendered at 400 dpi; pixels calibrated to chart units from the
+printed x tick labels (only 0..+60 °C, since a leading minus drags a negative
+label's centroid off its tick) and from a comb fitted to the major N1
+gridlines. The two axes are fitted independently and must agree, because the
+grid squares are square: they do, to within 0.5% on every page. Curves are
+isolated by morphological opening, which removes the fine grid and leaves the
+plotted strokes, then fitted by RANSAC and traced. Fitted lines were overlaid on
+the scan and land dead-centre on the printed strokes, so the residual
+disagreement below is not a digitising artefact.
+
+**Result.** Figure 7-6 is a single chart titled "TAKEOFF/GO AROUND THRUST
+SETTING" — structural confirmation that go-around and takeoff share one
+schedule, which is the assumption behind the 2000-ft go-around correction above.
+Against the shipped tables:
+
+| Table | n | mean | sd | max abs |
+| --- | --- | --- | --- | --- |
+| `n1_takeoff.csv` | 64 | +0.12 | 0.52 | 0.77 |
+| `n1_takeoff_ai.csv` | 40 | +0.27 | 0.40 | 0.93 |
+| `n1_goaround.csv` | 64 | +0.06 | 0.52 | 0.77 |
+| `n1_goaround_ai.csv` | 40 | +0.16 | 0.41 | 0.93 |
+
+That is about what reading a photocopied graph supports, and it is *worse* than
+the tables' own resolution: these CSVs are transcribed from printed numbers at
+0.1 %N1, so **the charts corroborate them rather than replace them.** The check
+rules out the failures that would matter — wrong schedule, wrong axis, wrong
+variant, transposition — but cannot adjudicate at the tenth.
+
+**Both flagged adjudications are confirmed.** Every one of the seven cells where
+this repo departed from a printed value sits closer to the manufacturer's chart
+than the value it rejected:
+
+| Cell | Chart | Adopted | Rejected |
+| --- | --- | --- | --- |
+| GA 2000 ft, -20 °C | 92.6 | **92.9** | 91.7 |
+| GA 2000 ft, -10 °C | 94.3 | **94.7** | 93.5 |
+| GA 2000 ft, 0 °C | 96.0 | **96.5** | 95.3 |
+| GA 2000 ft, 10 °C | 97.7 | **98.3** | 97.0 |
+| TO 7000 ft, -10 °C black | 101.9 | **102.2** | 100.2 |
+| TO 7000 ft, -25 °C red | 99.1 | **98.6** | 96.8 |
+| TO 7000 ft, -20 °C red | 98.3 | **97.4** | 92.4 |
+
+The 2000-ft go-around block and the 7000-ft "TO DO STILL" block were the two
+regions the manual called out as carrying known uncertainty. They no longer do.
+
+## What the Operating Manual has that these tables do not
+
+Three schedules exist in the manufacturer's charts that no table here covers.
+None is modelled yet; see [`../docs/CONTRACTS.md`](../docs/CONTRACTS.md).
+
+- **Engine-only anti-ice.** Figures 7-8 and 7-10 both carry the note: "FOR ONLY
+  ENGINE ANTI-ICE ON, REDUCE THE ANTI-ICE OFF N1 FROM FIGURE 7-7 [7-9 for
+  cruise] BY 1% N1 EXCEPT THE RESULTING N1 NEED NOT BE LESS THAN THE ANTI-ICE ON
+  - ALL N1 FROM THIS CHART." That is `max(dry - 1.0, wet)`, for climb and cruise
+  only — the takeoff chart publishes no engine-only case.
+- **ISA deviation at altitude.** Climb at or above 25,000 ft and cruise at or
+  above 30,000 ft reduce N1 by 1.0 for ISA+11 to +20 °C and 2.0 for ISA+21 to
+  +30 °C, nothing below ISA+11.
+- **Environmental (ECS) bleed.** The climb and cruise anti-ice-off charts publish
+  separate "ENVIRONMENTAL SYSTEMS - OFF" and "- ON" caps. The takeoff chart is
+  drawn for environmental systems on only.
+
+The charts also settle what "anti-ice on" means: Figures 7-8 and 7-10 are titled
+"ANTI-ICE ON (ALL-ENGINE, WING, AND WINDSHIELD)", the same three systems the
+flight manual supplement lists as W/S, ENG and WING.

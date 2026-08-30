@@ -413,6 +413,20 @@ extrapolating.
   <li><strong>Nothing carries across flights</strong> except the window position.
       The knob, any selected temperature and the breaker all return to their
       defaults when an aircraft loads.</li>
+  <li><strong>Anti-ice is all or nothing here.</strong> Cessna publishes a
+      schedule for engine-only anti-ice in the climb and cruise &mdash; a
+      percent below the dry number, but never below the full anti-ice number
+      &mdash; and pilots of the real box report seeing settings between dry and
+      full. This device dashes instead, which is what the flight manual
+      supplement it follows calls for.</li>
+  <li><strong>Hot days at altitude are not corrected.</strong> Cessna trims
+      climb thrust above 25,000&nbsp;ft and cruise thrust above 30,000&nbsp;ft
+      by up to 2&nbsp;% N<sub>1</sub> when the day runs more than 10&nbsp;&deg;C
+      above ISA. This device reads the chart straight.</li>
+  <li><strong>Environmental bleed is assumed on.</strong> The climb and cruise
+      charts publish separate curves for the environmental systems off; this
+      device always reads the systems-on schedule, which is the takeoff
+      chart&rsquo;s only case and the normal one in service.</li>
 </ul>
 
 <div class="callout callout--caution">
@@ -420,9 +434,14 @@ extrapolating.
   <p>
     The schedules are transcribed from the community-built <em>TorqueSim Cessna
     Citation 525 Performance Manual</em> by hornetaircraft and collaborators
-    (see &sect;8), not from Textron&rsquo;s own charts. Two regions carry known
-    uncertainty because the source pages disagree with themselves: the
-    2,000&nbsp;ft go-around block and the 7,000&nbsp;ft takeoff block.
+    (see &sect;8), not from Textron&rsquo;s own charts. They have since been
+    checked against the thrust-setting graphs in Cessna&rsquo;s own Model 525
+    Operating Manual and agree to within about half a percent N<sub>1</sub>,
+    which is as finely as a printed graph can be read. That check also settled
+    the two blocks &mdash; 2,000&nbsp;ft go-around and 7,000&nbsp;ft takeoff
+    &mdash; where the community pages contradict themselves: every cell this
+    plugin chose sits closer to the manufacturer&rsquo;s curve than the value it
+    passed over.
   </p>
 </div>
 </section>
@@ -490,8 +509,11 @@ this airplane is three switches: <span class="legend">W/S BLEED AIR</span>, and 
 left and right <span class="legend">WING/ENGINE</span> anti-ice switches, which carry
 the engine half. Each is three-position, and either working position counts as on.
 All three off gives the normal schedule; all three on gives the anti-ice schedule.
-Anything in between is a partial configuration the charts do not cover, and the
-device shows dashes rather than pick a schedule that would be wrong.
+Anything in between shows dashes. Cessna does publish one partial case &mdash;
+engine anti-ice alone, in the climb and cruise &mdash; and pilots of the real
+instrument report it displaying settings between the dry and the full-anti-ice
+numbers. The flight manual supplement this device follows is explicit the other
+way, so dashes it is; see &sect;4.
 </p>
 
 <h3 id="s5-5">The performance charts</h3>
@@ -775,6 +797,14 @@ href="https://forums.x-pilot.com/files/file/1613-torquesim-cessna-citation-525-p
 <p>
 If you want these schedules for a project of your own, please take them from the
 source above and credit its authors.
+</p>
+<p>
+The tables were later checked cell by cell against the thrust-setting graphs in
+Cessna&rsquo;s Model 525 Operating Manual, and the flight manual supplement that
+describes the instrument itself came from the same place: both were lent by a
+CJ1 owner-operator on the condition that they are not redistributed, so neither
+ships with this plugin. The schedules you have here are still the community
+ones; the manufacturer&rsquo;s charts only vouch for them.
 </p>
 
 <h3 id="s8-2">Licence</h3>

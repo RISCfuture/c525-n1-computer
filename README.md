@@ -150,6 +150,13 @@ Without their charts there would be nothing for this instrument to display.
 [`data/PROVENANCE.md`](data/PROVENANCE.md) records the transcription cell by
 cell, including where the source pages contradict themselves.
 
+Those tables have since been checked against Cessna's own Model 525 Operating
+Manual thrust-setting graphs, which agree to within about half a percent N1 and
+back every cell where this repo departed from a printed community value. That
+manual and the flight manual supplement were both lent privately and are not
+redistributable, so they are not in this repository;
+`scripts/digitize_om_charts.py` reproduces the comparison from your own copy.
+
 ## Licence
 
 The plugin source is MIT licensed — see [`LICENSE`](LICENSE).

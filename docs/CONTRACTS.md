@@ -153,6 +153,8 @@ Handle resolution is all-or-nothing and retries for as long as the CJ525 stays
 loaded: a partially resolved gate would read anti-ice as off and publish the dry
 schedule, which looks healthy while showing the wrong target.
 
+### Anti-ice, and what is deliberately not modelled
+
 Anti-ice reads the AFM's three bleed air systems (W/S, ENG, WING) off three
 switches: `switch_panel/ice_bleed` is W/S BLEED AIR, and `ice_wing_l`/`ice_wing_r`
 are the WING/ENGINE pair. All three are three-position — the cockpit object
@@ -161,6 +163,31 @@ OFF at 0 on every such switch (`batt` is EMER −1 / OFF 0 / BATT +1) — so a s
 counts as selected when it is off centre, not when it is positive. Testing for
 positive would read the lower detent (W/S BLEED AIR LO) as off and dash on a fully
 configured airplane.
+
+The supplement's rule — anything short of all three on displays dashes — is what
+we implement. The manufacturer's Operating Manual publishes more than that, and
+an owner-operator of an installed unit reports that his box does too ("the N1
+computer provides a setting for just engine deice, that's between the no-deice
+and full deice numbers"; asked whether partial settings interpolate halfway, "I
+think they're not — just engines is closer to no-deice ... probably just leaving
+windshield off makes it close to all on"). Three schedules are therefore known
+and **not** modelled:
+
+- **Engine-only anti-ice**, `max(dry - 1.0, wet)` for climb and cruise (OM
+  Figures 7-8 and 7-10; the takeoff chart publishes no engine-only case). The
+  blocker is detection, not arithmetic: engine anti-ice on this airplane rides
+  on the two WING/ENGINE switches, so whether "engine only" is even reachable
+  depends on what those switches' two live detents mean — unresolved.
+- **ISA deviation at altitude**: climb at or above 25,000 ft and cruise at or
+  above 30,000 ft lose 1.0 %N1 for ISA+11..+20 °C and 2.0 for ISA+21..+30.
+- **Environmental (ECS) bleed**, which the climb and cruise charts split into
+  separate caps. We always read the environmental-systems-on schedule, which is
+  the only one the takeoff chart publishes and the normal in-service case.
+
+Dashing on a partial configuration stays correct for the supplement we model
+(configuration S6-AA/S6-AB). Note that S6-AC, the third configuration in the
+same scan, omits the NOTE that mandates it. See
+[`../data/PROVENANCE.md`](../data/PROVENANCE.md).
 
 The plugin installs to `Resources/plugins/` rather than the aircraft's own
 `plugins/` folder. X-Plane would gate an aircraft-folder plugin natively, but the
