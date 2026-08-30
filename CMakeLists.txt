@@ -26,6 +26,7 @@ endif()
 set(SFN1_SOURCES
     src/plugin.cpp
     src/plugin_paths.cpp
+    src/ini.cpp
     src/window.cpp
     src/segment_display.cpp
     src/layout.cpp

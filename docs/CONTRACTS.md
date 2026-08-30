@@ -114,7 +114,8 @@ returns to "in" whenever an aircraft loads.
 `sfn1/display_state` i (0 Off, 1 SelfTest888, 2 Dashes, 3 Rat, 4 TempSet, 5 N1, 6 Fail) ·
 `sfn1/selected_temp_c` f (−999 when no temp is dialed) · `sfn1/rat_c` f ·
 `sfn1/air_data_failed` i (1 when an air data source is failed) ·
-`sfn1/breaker_pulled` i (writable; 1 while the N1 IND breaker is pulled)
+`sfn1/breaker_pulled` i (writable; 1 while the N1 IND breaker is pulled) ·
+`sfn1/isa_trim` i (writable; 1 while the hot-and-high trim is applied)
 Debug overrides (always compiled, default off): `sfn1/test_override_enable` i,
 `sfn1/test_override_rat_c` f, `sfn1/test_override_pa_ft` f, `sfn1/test_override_on_ground` i,
 `sfn1/test_override_anti_ice` i (0/1/2), `sfn1/test_override_powered` i,
@@ -126,6 +127,32 @@ Debug overrides (always compiled, default off): `sfn1/test_override_enable` i,
 `sfn1/temp_up`, `sfn1/temp_down`, `sfn1/breaker_pull`, `sfn1/breaker_reset`,
 `sfn1/breaker_toggle`. The plugin menu carries one breaker item, backed by
 `breaker_toggle`, whose label follows the breaker's position (Pull ↔ Reset).
+
+## Options (`config.ini`)
+
+Flat `key=value` integers beside the `.xpl`, read once at startup by
+`applyConfig()` in `plugin.cpp`. Absent file, absent key and unparseable value
+all fall back to the default. Separate from `settings.ini`, which the window
+rewrites wholesale every time it closes and would otherwise drop these.
+
+| Key | Default | Effect |
+| --- | --- | --- |
+| `isa_trim` | `0` | Apply the Operating Manual's hot-and-high trim to CLB and CRU. |
+
+**`isa_trim`.** OM Figures 7-7 and 7-9: climb at or above 25,000 ft and cruise at
+or above 30,000 ft lose 1.0 %N1 at ISA+11..+20 °C and 2.0 at ISA+21..+30. The
+deviation is measured against the standard-day *ram* air temperature the figures
+tabulate for their own speed schedules (climb −26.0 at 25,000 through −46.0 at
+41,000; cruise −24.0 at 30,000 through −39.0 at 41,000), interpolated by
+altitude — not against ambient ISA, since those figures already carry the ram
+rise. Above ISA+30 the second step holds rather than extrapolating a third.
+Go-around is never trimmed: its chart carries no such note and its 15,500 ft
+ceiling is below either altitude.
+
+Default off because the flight manual supplement does not say the device does
+this — the charts instruct the pilot, not the instrument — so the default keeps
+the supplement's behaviour. `sfn1/isa_trim` is writable and re-read every frame,
+so both behaviours can be compared in one session without a restart.
 
 ## Faceplate layout contract (`assets/layout.json`)
 
@@ -178,8 +205,8 @@ and **not** modelled:
   blocker is detection, not arithmetic: engine anti-ice on this airplane rides
   on the two WING/ENGINE switches, so whether "engine only" is even reachable
   depends on what those switches' two live detents mean — unresolved.
-- **ISA deviation at altitude**: climb at or above 25,000 ft and cruise at or
-  above 30,000 ft lose 1.0 %N1 for ISA+11..+20 °C and 2.0 for ISA+21..+30.
+- **ISA deviation at altitude** — implemented, but **off by default**; see
+  below.
 - **Environmental (ECS) bleed**, which the climb and cruise charts split into
   separate caps. We always read the environmental-systems-on schedule, which is
   the only one the takeoff chart publishes and the normal in-service case.

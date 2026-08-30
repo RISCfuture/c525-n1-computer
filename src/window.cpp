@@ -12,6 +12,7 @@
 #include "XPLMDisplay.h"
 #include "XPLMUtilities.h"
 
+#include "ini.h"
 #include "plugin_paths.h"
 #include "segment_display.h"
 
@@ -115,22 +116,6 @@ Layout loadLayoutOrDefault() {
     XPLMDebugString(
         "SafeFlightN1: assets/layout.json missing or malformed; using built-in layout\n");
     return {};
-}
-
-std::map<std::string, int> readIni(const std::string& path) {
-    std::map<std::string, int> values;
-    std::ifstream file(path);
-    std::string line;
-    while (std::getline(file, line)) {
-        const auto eq = line.find('=');
-        if (eq == std::string::npos) continue;
-        try {
-            values[line.substr(0, eq)] = std::stoi(line.substr(eq + 1));
-        } catch (...) {
-            // A malformed value means that setting falls back to its default.
-        }
-    }
-    return values;
 }
 
 void writeIni(const std::string& path, const std::map<std::string, int>& values) {

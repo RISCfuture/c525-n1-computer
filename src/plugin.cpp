@@ -13,6 +13,7 @@
 #include "XPLMUtilities.h"
 
 #include "aircraft_gate.h"
+#include "ini.h"
 #include "plugin_paths.h"
 #include "sim_inputs.h"
 #include "window.h"
@@ -49,6 +50,18 @@ int gModeIndex = 1;
 /// Figures 2-7 and 2-8). Pulling it power-cycles this box alone, rather than
 /// dropping every avionics box with the master switch.
 int gBreakerPulled = 0;
+
+/// The Operating Manual's hot-and-high climb/cruise trim, off unless
+/// config.ini turns it on. Writable as sfn1/isa_trim so both behaviours can be
+/// compared in one session without a restart. Kept out of settings.ini, which
+/// the window rewrites wholesale whenever it closes.
+int gIsaTrim = 0;
+
+void applyConfig() {
+    const auto config = readIni(pluginDir() + "/config.ini");
+    gIsaTrim = iniValue(config, "isa_trim", 0) != 0 ? 1 : 0;
+    gDevice.setIsaTrim(gIsaTrim != 0);
+}
 
 XPLMFlightLoopID gMainLoop = nullptr;
 XPLMMenuID gMenu = nullptr;
@@ -98,6 +111,7 @@ void registerDataRefs() {
     registerFloatDataRef("sfn1/rat_c", &gPublished.ratC, false);
     registerIntDataRef("sfn1/air_data_failed", &gPublished.airDataFailed, false);
     registerIntDataRef("sfn1/breaker_pulled", &gBreakerPulled, true);
+    registerIntDataRef("sfn1/isa_trim", &gIsaTrim, true);
     registerIntDataRef("sfn1/test_override_enable", &gOverrides.enable, true);
     registerFloatDataRef("sfn1/test_override_rat_c", &gOverrides.ratC, true);
     registerFloatDataRef("sfn1/test_override_pa_ft", &gOverrides.paFt, true);
@@ -352,6 +366,7 @@ float onFlightLoop(float elapsedSinceLastCall, float, int, void*) {
         idleUninstalled();
         return -1.0f;
     }
+    gDevice.setIsaTrim(gIsaTrim != 0);  // sfn1/isa_trim is writable, so re-read it each frame
     const InputSnapshot input =
         gInputs->snapshot(gGate, gOverrides, knobHeld(), gBreakerPulled != 0);
     const Output output = gDevice.tick(input, elapsedSinceLastCall);
@@ -387,6 +402,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     gInputs = std::make_unique<SimInputs>();
     ensureSharedFontAtlas();
     loadDeviceTables();
+    applyConfig();
     createCommands();
     registerDataRefs();
     createMenu();

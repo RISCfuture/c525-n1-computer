@@ -39,6 +39,12 @@ public:
     /// Moves the mode knob to a detent.
     void setMode(Mode mode);
 
+    /// Applies the Operating Manual's hot-and-high trim to the climb and
+    /// cruise targets (OM Figures 7-7 and 7-9). Off by default: the flight
+    /// manual supplement does not say the device does this, and the charts
+    /// address the pilot rather than the instrument. See docs/CONTRACTS.md.
+    void setIsaTrim(bool on) { isaTrim_ = on; }
+
     /// Adjusts the pilot-selected (assumed) takeoff temperature by deltaC
     /// (press + rotate). Ground only; starts from the last sensed RAT.
     void bumpTemp(double deltaC);
@@ -86,6 +92,7 @@ private:
     Output groundTargetDisplay(const InputSnapshot& input, bool antiIceOn) const;
     Output airborneTargetDisplay(const InputSnapshot& input, bool antiIceOn) const;
     Output takeoffDisplay(double oatC, double paFt, bool antiIceOn) const;
+    double isaReduction(const InputSnapshot& input) const;
     const std::optional<N1Table>& airborneSchedule(bool antiIceOn) const;
     Output n1From(const std::optional<N1Table>& table, double oatC, double paFt) const;
     Output dashes() const;
@@ -109,6 +116,7 @@ private:
     bool lastOnGround_ = true;
     bool lastKnobPressed_ = false;
     bool selfTestFailed_ = false;
+    bool isaTrim_ = false;
 };
 
 }  // namespace sfn1

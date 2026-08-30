@@ -1,6 +1,7 @@
 #include "n1_computer.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <fstream>
 #include <sstream>
 
@@ -13,6 +14,41 @@ constexpr double kLandingRevertSeconds = 60.0;
 // blip the weight-on-wheels signal as it settles onto the gear.
 constexpr double kMinAirborneForLandingS = 10.0;
 constexpr double kGoAroundCeilingFt = 15500.0;
+
+// Standard-day ram air temperature for the charted climb and cruise speed
+// schedules, tabulated on OM Figures 7-7 and 7-9. The deviation that drives the
+// hot-and-high trim is read against these - they already carry the ram rise for
+// the speed each schedule is flown at - not against ambient ISA.
+struct IsaPoint {
+    double paFt;
+    double ratC;
+};
+constexpr IsaPoint kClimbIsaRat[] = {
+    {25000.0, -26.0}, {30000.0, -35.5}, {35000.0, -45.0}, {41000.0, -46.0}};
+constexpr IsaPoint kCruiseIsaRat[] = {
+    {30000.0, -24.0}, {35000.0, -34.0}, {37000.0, -37.5}, {41000.0, -39.0}};
+
+template <std::size_t N>
+double standardRatC(const IsaPoint (&points)[N], double paFt) {
+    if (paFt <= points[0].paFt) return points[0].ratC;
+    for (std::size_t i = 1; i < N; ++i) {
+        if (paFt > points[i].paFt) continue;
+        const IsaPoint& lo = points[i - 1];
+        const IsaPoint& hi = points[i];
+        const double f = (paFt - lo.paFt) / (hi.paFt - lo.paFt);
+        return lo.ratC + f * (hi.ratC - lo.ratC);
+    }
+    return points[N - 1].ratC;
+}
+
+/// "ISA PLUS 0-10 DEGREES C: NO REDUCTION / ISA PLUS 11-20 DEGREES C: 1.0% N1
+/// REDUCTION / ISA PLUS 21-30 DEGREES C: 2.0% N1 REDUCTION". The chart stops at
+/// ISA+30; hotter than that holds 2.0 rather than extrapolating a third step.
+double isaStep(double deviationC) {
+    if (deviationC <= 10.0) return 0.0;
+    if (deviationC <= 20.0) return 1.0;
+    return 2.0;
+}
 // The readout is three digits plus a sign, so temperatures outside this range
 // cannot be shown; the real RAT indication saturates rather than running away.
 constexpr double kSelectedTempLimitC = 99.0;
@@ -192,7 +228,27 @@ Output N1Computer::airborneTargetDisplay(const InputSnapshot& input, bool antiIc
     if (takeoffHold_)
         return takeoffDisplay(takeoffHold_->oatC, takeoffHold_->fieldElevationFt, antiIceOn);
     if (mode_ == Mode::ToGa && input.pressureAltFt > kGoAroundCeilingFt) return dashes();
-    return n1From(airborneSchedule(antiIceOn), input.ratC, input.pressureAltFt);
+    const Output target = n1From(airborneSchedule(antiIceOn), input.ratC, input.pressureAltFt);
+    if (target.state != DisplayState::N1) return target;
+    return output(DisplayState::N1, target.value - isaReduction(input));
+}
+
+/// The Operating Manual trims climb thrust at and above 25,000 ft and cruise
+/// thrust at and above 30,000 ft when the day runs hot. Go-around is untrimmed:
+/// the takeoff/go-around chart carries no such note, and its ceiling is well
+/// below either altitude anyway.
+double N1Computer::isaReduction(const InputSnapshot& input) const {
+    if (!isaTrim_) return 0.0;
+    switch (mode_) {
+        case Mode::Clb:
+            if (input.pressureAltFt < kClimbIsaRat[0].paFt) return 0.0;
+            return isaStep(input.ratC - standardRatC(kClimbIsaRat, input.pressureAltFt));
+        case Mode::Cru:
+            if (input.pressureAltFt < kCruiseIsaRat[0].paFt) return 0.0;
+            return isaStep(input.ratC - standardRatC(kCruiseIsaRat, input.pressureAltFt));
+        case Mode::ToGa: break;
+    }
+    return 0.0;
 }
 
 Output N1Computer::takeoffDisplay(double oatC, double paFt, bool antiIceOn) const {

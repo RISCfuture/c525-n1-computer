@@ -369,6 +369,30 @@ TEST_CASE("go-around is gated above 15,500 ft") {
     CHECK(out.state == DisplayState::N1);
 }
 
+TEST_CASE("the hot-and-high trim, when it is switched on") {
+    const std::string fixturesDir = fixturesDirectory();
+    N1Computer computer = poweredOnGround(fixturesDir);
+    run(computer, airborneAt(), 0.2);
+    computer.setMode(Mode::Clb);
+
+    // Fixture climb table: 63.0 at -10 degC and 30,000 ft, untrimmed by default.
+    CHECK_NEAR(run(computer, airborneAt(-10.0, 30000.0), 0.2).value, 63.0, 1e-9);
+
+    computer.setIsaTrim(true);
+    // Standard-day climb RAT at 30,000 ft is -35.5, so -10 degC is ISA+25.5:
+    // the second step, 2.0 %N1.
+    CHECK_NEAR(run(computer, airborneAt(-10.0, 30000.0), 0.2).value, 61.0, 1e-9);
+    // Below 25,000 ft the climb chart carries no trim at all.
+    CHECK_NEAR(run(computer, airborneAt(-10.0, 20000.0), 0.2).value, 62.0, 1e-9);
+
+    computer.setMode(Mode::Cru);
+    // Cruise trims only at and above 30,000 ft, where standard is -24.0:
+    // -10 degC is ISA+14, the first step, 1.0 %N1 off the fixture's 43.0.
+    CHECK_NEAR(run(computer, airborneAt(-10.0, 30000.0), 0.2).value, 42.0, 1e-9);
+    // A thousand feet lower the trim does not apply, so the raw 42.9 stands.
+    CHECK_NEAR(run(computer, airborneAt(-10.0, 29000.0), 0.2).value, 42.9, 1e-9);
+}
+
 TEST_CASE("the display reverts to 888 a minute after landing") {
     const std::string fixturesDir = fixturesDirectory();
     N1Computer computer = poweredOnGround(fixturesDir);
