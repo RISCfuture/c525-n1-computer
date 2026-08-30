@@ -10,7 +10,9 @@ namespace sfn1 {
 struct AfmHandles {
     XPLMDataRef engN1Left = nullptr;
     XPLMDataRef engN1Right = nullptr;
-    XPLMDataRef iceBleed = nullptr;
+    // The AFM's three bleed air anti-ice systems (W/S, ENG, WING). The two
+    // wing switches are placarded WING/ENGINE and carry the engine half.
+    XPLMDataRef iceWindshieldBleed = nullptr;  // afm/cj/switch_panel/ice_bleed
     XPLMDataRef iceWingLeft = nullptr;
     XPLMDataRef iceWingRight = nullptr;
     XPLMDataRef avionicsBusLeftVolts = nullptr;

@@ -95,7 +95,7 @@ bool AircraftGate::resolveHandles() {
     static constexpr Binding kBindings[] = {
         {"afm/cj/f/gauges/eng_n1_l", &AfmHandles::engN1Left},
         {"afm/cj/f/gauges/eng_n1_r", &AfmHandles::engN1Right},
-        {"afm/cj/switch_panel/ice_bleed", &AfmHandles::iceBleed},
+        {"afm/cj/switch_panel/ice_bleed", &AfmHandles::iceWindshieldBleed},
         {"afm/cj/switch_panel/ice_wing_l", &AfmHandles::iceWingLeft},
         {"afm/cj/switch_panel/ice_wing_r", &AfmHandles::iceWingRight},
         {"afm/cj/f/elec/V_bus_av_l_x_over", &AfmHandles::avionicsBusLeftVolts},

@@ -151,6 +151,15 @@ Handle resolution is all-or-nothing and retries for as long as the CJ525 stays
 loaded: a partially resolved gate would read anti-ice as off and publish the dry
 schedule, which looks healthy while showing the wrong target.
 
+Anti-ice reads the AFM's three bleed air systems (W/S, ENG, WING) off three
+switches: `switch_panel/ice_bleed` is W/S BLEED AIR, and `ice_wing_l`/`ice_wing_r`
+are the WING/ENGINE pair. All three are three-position — the cockpit object
+animates them over rotate keys −1/0/+1 with the centre at rest, and TorqueSim puts
+OFF at 0 on every such switch (`batt` is EMER −1 / OFF 0 / BATT +1) — so a switch
+counts as selected when it is off centre, not when it is positive. Testing for
+positive would read the lower detent (W/S BLEED AIR LO) as off and dash on a fully
+configured airplane.
+
 The plugin installs to `Resources/plugins/` rather than the aircraft's own
 `plugins/` folder. X-Plane would gate an aircraft-folder plugin natively, but the
 CJ525 is payware that self-updates, and an update replacing the aircraft folder

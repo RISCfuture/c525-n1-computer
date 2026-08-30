@@ -24,7 +24,14 @@ constexpr const char* kAirDataFailureDataRefs[] = {
     "sim/operation/failures/rel_tat_2",       // TAT probe (no pilot-side dataref exists)
 };
 
-bool switchIsOn(XPLMDataRef ref) { return ref && XPLMGetDatai(ref) > 0; }
+// The three anti-ice switches are three-position: the cockpit object animates
+// each of ice_bleed, ice_wing_l and ice_wing_r over rotate keys -1 / 0 / +1
+// with the centre at rest, and TorqueSim puts OFF at 0 on every such switch
+// (batt is EMER -1 / OFF 0 / BATT +1). Both non-zero detents are therefore
+// selected positions - W/S BLEED AIR is HI and LO either side of OFF - so the
+// test is "not centred", never "positive", which would read LO as off and
+// dash on a fully configured airplane.
+bool switchIsOn(XPLMDataRef ref) { return ref && XPLMGetDatai(ref) != 0; }
 
 bool busIsEnergized(XPLMDataRef ref) { return ref && XPLMGetDataf(ref) >= kBusEnergizedVolts; }
 
@@ -90,10 +97,14 @@ bool SimInputs::airDataFailed() const {
                        [](XPLMDataRef ref) { return XPLMGetDatai(ref) == kInoperative; });
 }
 
+/// "All bleed air anti-ice (W/S, ENG, WING) must be selected on for anti-ice
+/// power setting. If anti-ice is partially activated, '---' will be displayed"
+/// (AFM Supplement 6, p. S6-5). The airplane spreads those three over three
+/// switches: W/S BLEED AIR, and the two WING/ENGINE switches.
 int SimInputs::antiIce(const AircraftGate& gate) const {
     if (!gate.isActive()) return 0;
     const AfmHandles& afm = gate.handles();
-    const int engaged = (switchIsOn(afm.iceBleed) ? 1 : 0) +
+    const int engaged = (switchIsOn(afm.iceWindshieldBleed) ? 1 : 0) +
                         (switchIsOn(afm.iceWingLeft) ? 1 : 0) +
                         (switchIsOn(afm.iceWingRight) ? 1 : 0);
     if (engaged == 0) return 0;
