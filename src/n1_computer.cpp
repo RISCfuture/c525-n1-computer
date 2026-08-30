@@ -218,9 +218,9 @@ Output N1Computer::n1From(const std::optional<N1Table>& table, double oatC,
 
 Output N1Computer::dashes() const { return output(DisplayState::Dashes, 0.0); }
 
-/// "The display will blank for any failure." An unsatisfactory power-up
-/// self-test latches until the next power cycle; a failure arising later
-/// clears as soon as the air data source is valid again.
+/// "The display will blank for any failure" (AFM Supplement 6, p. S6-6). An
+/// unsatisfactory power-up self-test latches until the next power cycle; a
+/// failure arising later clears as soon as the air data source is valid again.
 Output N1Computer::blank() const { return output(DisplayState::Fail, 0.0); }
 
 Output N1Computer::output(DisplayState state, double value) const {

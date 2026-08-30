@@ -3,7 +3,9 @@
 An X-Plane 12 recreation of the Safe Flight N1 Computer/Display (P/N C-12732-1),
 the three-digit amber panel instrument that tells a Citation 525 crew what fan
 speed to set. It reads ram air temperature and pressure altitude, looks up the
-flight manual's thrust schedule, and drives a popup faceplate.
+flight manual's thrust schedule, and drives a popup faceplate. The FAA-approved
+supplement covering the installation — Cessna Model 525, Section V, Supplement 6
+— calls it the _SafeFlight N1 Reminder_, and its behaviour is what this models.
 
 The plugin activates only while the TorqueSim CitationJet 525 is the user
 aircraft.
@@ -128,8 +130,8 @@ rather than a tracked copy. [`lib/README.md`](lib/README.md) explains why.
 | `fastlane/` | macOS code signing via _match_. |
 
 Start with [`docs/CONTRACTS.md`](docs/CONTRACTS.md): it fixes the CSV schema,
-the module APIs, the published datarefs and commands, and the modelled failure
-behaviour with its sourcing.
+the module APIs, the published datarefs and commands, and the modelled display
+and failure behaviour, quoting the flight manual supplement it comes from.
 
 ## Credits
 

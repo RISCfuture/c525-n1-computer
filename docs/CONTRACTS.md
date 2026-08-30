@@ -74,17 +74,19 @@ on liftoff. Lifting off in CLB/CRU latches nothing: those positions were showing
 dashes, so there is no takeoff target to hold. The selected temperature lives exactly
 as long as the hold — cleared with it on the first mode change, or on touchdown.
 
-Failures (FlightSafety CJ1 PTM Vol 2, pp. 16-167/16-169): "the display will blank for
-any failure". `Fail` blanks the display while leaving it energized, so the unlit ghost
+Failures (AFM Supplement 6, p. S6-6; the FlightSafety CJ1 PTM, Vol 2,
+pp. 16-167/16-169, paraphrases it): "The display will blank for any failure".
+`Fail` blanks the display while leaving it energized, so the unlit ghost
 segments stay visible — `Off` renders nothing at all. Air data is invalid when any of
 `rel_adc_comp`, `rel_adc_comp_2`, `rel_static`, `rel_static2` or `rel_tat_2` reads 6
 (failed now; 1–5 only *arm* a failure). Standby sources are excluded — they feed the
 standby instruments, not the air data bus. A failure present at power-up is an
 unsatisfactory self-test: the display blanks instead of showing 888 and latches until
 the next power cycle; a failure arising later clears when the source recovers.
-Out-of-chart inputs dash rather than clamping, which also reproduces the PTM's "at
-maximum cruising altitude (FL 410), display of N1 may be intermittent" — FL410 sits
-exactly on the cruise table's upper edge.
+Out-of-chart inputs dash rather than clamping, which also reproduces the supplement's
+"at maximum cruising altitude (FL410), display of N1 may be intermittent" (p. S6-5,
+in the NOTE that configuration S6-AB carries and S6-AC drops) — FL410 sits exactly on
+the cruise table's upper edge.
 
 Clearing a latched self-test needs a power cycle, which the **N1 IND circuit breaker**
 provides: pulling it opens the device's power feed (`Off`), and resetting it re-runs the

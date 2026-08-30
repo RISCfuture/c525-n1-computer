@@ -1,6 +1,7 @@
 # Safe Flight N1 Computer
 
-A simulation of the Safe Flight N1 Computer/Display (P/N C-12732-1) for
+A simulation of the Safe Flight N1 Computer/Display (P/N C-12732-1) — the
+SafeFlight N1 Reminder of the Model 525 flight manual supplement — for
 X-Plane 12 and the TorqueSim CitationJet 525.
 
 **Read `SafeFlightN1-Manual.pdf` in this folder** — it covers operation,

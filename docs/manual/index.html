@@ -89,13 +89,17 @@ climb, or maximum cruise.
 Safe Flight Instrument Corporation built it as the
 <span class="legend">N<sub>1</sub> COMPUTER/DISPLAY</span>, part number C-12732-1. It was
 certified for the 525 under STC SA01872AT in 1999, as a factory option or a service
-center retrofit.
+center retrofit. The flight manual supplement that came with the installation calls
+it the <b>SafeFlight N<sub>1</sub> Reminder</b>, and that supplement &mdash; Cessna
+Model 525, Section V, Supplement 6 &mdash; is where the behaviour recreated here
+comes from.
 </p>
 
 <p>
-It is an advisory instrument. FlightSafety&rsquo;s CJ1 training manual describes it
-as &ldquo;a secondary means of computing approximate N<sub>1</sub>&rdquo;, the primary means
-being the FAA-approved Airplane Flight Manual. It drives nothing &mdash; no bugs, no
+It is an advisory instrument, and its own FAA-approved supplement says so first:
+it is &ldquo;a secondary means of computing approximate N<sub>1</sub>&rdquo;, and
+&ldquo;the primary means for determining N<sub>1</sub> settings under all conditions
+is the FAA Approved Airplane Flight Manual.&rdquo; It drives nothing &mdash; no bugs, no
 autothrottle, no link to the engine displays. It is not required equipment for any
 kind of operation.
 </p>
@@ -224,8 +228,9 @@ bind to hardware; see section 7.
 <h3 id="s3-3">Power-up</h3>
 <p>
 The device wakes with the avionics. Turn the avionics master on with a live bus and
-the display shows <span class="readout">888</span> for five seconds while it tests
-every segment, then settles to the target for whichever mode the knob is in.
+the display shows <span class="readout">888</span> for five seconds &mdash; the
+supplement&rsquo;s satisfactory self-test indication, though it does not say how long
+it stands &mdash; then settles to the target for whichever mode the knob is in.
 </p>
 <figure class="fig--device">
   <img src="../images/display-self-test.png" alt="The display showing 888 during the power-up self-test">
@@ -270,15 +275,17 @@ sensed one.
   <figcaption><b>Figure 3-5</b> &mdash; A selected temperature of 18&nbsp;&deg;C. The readout blinks.</figcaption>
 </figure>
 <p>
-Release, and the display returns to takeoff N<sub>1</sub> computed for that temperature. The
-selection is discarded at liftoff, and cannot be made in flight.
+Release, and the display returns to takeoff N<sub>1</sub> computed for that temperature. A
+selection cannot be made in flight, but it is not thrown away at liftoff either: see
+<a href="#s3-7">section&nbsp;3.7</a>.
 </p>
 
 <h3 id="s3-6">Anti-ice</h3>
 <p>
 Anti-ice costs thrust, and the flight manual publishes a separate schedule for it.
-The device follows the aircraft&rsquo;s switches with no input from you: with engine
-bleed and both wing anti-ice selected on, it reads from the anti-ice schedule.
+The device follows the aircraft&rsquo;s switches with no input from you: with
+windshield bleed air and both <span class="legend">WING/ENGINE</span> anti-ice
+switches selected on, it reads from the anti-ice schedule.
 </p>
 <figure class="fig--device">
   <img src="../images/display-anti-ice.png" alt="The display reading 94.3 percent N1 with anti-ice on">
@@ -294,6 +301,13 @@ bleed and both wing anti-ice selected on, it reads from the anti-ice schedule.
 </div>
 
 <h3 id="s3-7">Climb and cruise</h3>
+<p>
+Leave the knob alone through the climb-out and the display keeps showing the takeoff
+target you set: the temperature you selected, or the one it sensed, against the field
+elevation you left. It is the number you rotated to, held steady, not a live
+recomputation &mdash; so it is still there to check against the throttles. Moving the
+knob is what ends it, and the selected temperature goes at the same moment.
+</p>
 <p>
 Once airborne, select <span class="legend">CLB</span> for the recommended maximum
 climb setting. The device now works from sensed ram air temperature and pressure
@@ -321,7 +335,8 @@ the target will move again.
 <h3 id="s3-8">Approach and go-around</h3>
 <p>
 Descending through 15,500&nbsp;ft, select <span class="legend">TO/GA</span> again.
-In flight that position gives go-around thrust, ready before you need it. Above
+Coming back to it from <span class="legend">CLB</span> or <span class="legend">CRU</span>
+is what turns that position into go-around thrust, ready before you need it. Above
 15,500&nbsp;ft it shows dashes, because a go-around setting has no meaning up there.
 </p>
 <figure class="fig--device">
@@ -388,8 +403,10 @@ extrapolating.
       display may come and go there as altitude wanders.</li>
   <li><strong>Go-around thrust is available at or below 15,500&nbsp;ft.</strong>
       Above that ceiling the display dashes.</li>
-  <li><strong>A selected temperature is a ground facility.</strong> It saturates at
-      &plusmn;99&nbsp;&deg;C and is discarded at liftoff.</li>
+  <li><strong>A selected temperature is dialed on the ground only.</strong> It
+      saturates at &plusmn;99&nbsp;&deg;C, cannot be changed in flight, and is
+      released &mdash; along with the takeoff target it is holding &mdash; the first
+      time the knob moves after liftoff.</li>
   <li><strong>Resolution changes at 100&nbsp;%.</strong> Below 99.95&nbsp;% the
       readout shows tenths; at or above it shows whole percent with the decimal
       point unlit, because there are only three digits.</li>
@@ -435,7 +452,7 @@ Everything is taken from the aircraft; there is nothing to configure.
     <tr><th>Pressure altitude</th><td>The altitude axis of every chart</td></tr>
     <tr><th>Weight on wheels</th><td>Ground or airborne, which decides what each knob position means</td></tr>
     <tr><th>Avionics master and bus voltage</th><td>Whether the device is powered at all</td></tr>
-    <tr><th>Engine bleed and wing anti-ice switches</th><td>Choosing the normal or anti-ice schedule</td></tr>
+    <tr><th>Windshield bleed air and wing/engine anti-ice switches</th><td>Choosing the normal or anti-ice schedule</td></tr>
     <tr><th>Air data computer and static system failures</th><td>Blanking the display</td></tr>
     <tr><th>Center instrument light rheostat</th><td>Dimming the readout for night operation</td></tr>
   </tbody>
@@ -450,18 +467,28 @@ on the ground.
   <thead><tr><th style="width:22%">Knob</th><th>On the ground</th><th>Airborne</th></tr></thead>
   <tbody>
     <tr><th><span class="legend">CLB</span></th><td>Dashes</td><td>Recommended maximum climb</td></tr>
-    <tr><th><span class="legend">TO/GA</span></th><td>Takeoff</td><td>Go-around, at or below 15,500&nbsp;ft; dashes above</td></tr>
+    <tr><th><span class="legend">TO/GA</span></th><td>Takeoff</td><td>The held takeoff target until the knob moves; thereafter go-around, at or below 15,500&nbsp;ft, dashes above</td></tr>
     <tr><th><span class="legend">CRU</span></th><td>Dashes</td><td>Recommended maximum cruise</td></tr>
   </tbody>
 </table>
 <p>
 On the ground the takeoff lookup uses your selected temperature if you have dialed
-one, and the sensed temperature otherwise. Airborne, it is always sensed temperature.
+one, and the sensed temperature otherwise. Liftoff in <span class="legend">TO/GA</span>
+latches whichever it was, together with the field elevation, and the display goes on
+reading the takeoff schedule from those until the knob moves &mdash; anti-ice still
+counts live, so switching it on inflight moves the same held conditions onto the
+anti-ice schedule. Lifting off in <span class="legend">CLB</span> or
+<span class="legend">CRU</span> latches nothing: those were showing dashes, so there
+is no takeoff target to hold. Once the knob moves, every mode works from sensed
+temperature and current pressure altitude.
 </p>
 
 <h3 id="s5-4">The anti-ice interlock</h3>
 <p>
-The device watches three switches: engine bleed anti-ice, left wing, and right wing.
+The supplement asks for &ldquo;all bleed air anti-ice (W/S, ENG, WING)&rdquo;, which on
+this airplane is three switches: <span class="legend">W/S BLEED AIR</span>, and the
+left and right <span class="legend">WING/ENGINE</span> anti-ice switches, which carry
+the engine half. Each is three-position, and either working position counts as on.
 All three off gives the normal schedule; all three on gives the anti-ice schedule.
 Anything in between is a partial configuration the charts do not cover, and the
 device shows dashes rather than pick a schedule that would be wrong.
