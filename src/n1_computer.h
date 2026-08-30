@@ -55,6 +55,14 @@ public:
     std::optional<double> selectedTempC() const { return selectedTempC_; }
 
 private:
+    /// The takeoff conditions the display holds after liftoff: the temperature
+    /// and field elevation the ground display was reading from. Anti-ice is
+    /// deliberately absent, since the AFM keeps it live.
+    struct TakeoffHold {
+        double oatC;
+        double fieldElevationFt;
+    };
+
     struct ScheduleTables {
         std::optional<N1Table> takeoff, takeoffAi;
         std::optional<N1Table> goAround, goAroundAi;
@@ -67,6 +75,8 @@ private:
     void handleGroundAirTransition(const InputSnapshot& input, double dtSeconds);
     void runLandingRevert(const InputSnapshot& input, double dtSeconds);
     void handleKnobPressEdge(const InputSnapshot& input);
+    void armTakeoffHold();
+    void releaseTakeoffHold();
     void wakeFromStandby();
     void rememberInputs(const InputSnapshot& input);
 
@@ -75,6 +85,7 @@ private:
     Output targetDisplay(const InputSnapshot& input) const;
     Output groundTargetDisplay(const InputSnapshot& input, bool antiIceOn) const;
     Output airborneTargetDisplay(const InputSnapshot& input, bool antiIceOn) const;
+    Output takeoffDisplay(double oatC, double paFt, bool antiIceOn) const;
     const std::optional<N1Table>& airborneSchedule(bool antiIceOn) const;
     Output n1From(const std::optional<N1Table>& table, double oatC, double paFt) const;
     Output dashes() const;
@@ -91,8 +102,10 @@ private:
     double sinceTouchdownS_ = 0.0;
     double airborneS_ = 0.0;
     std::optional<double> selectedTempC_;
+    std::optional<TakeoffHold> takeoffHold_;
     bool rotatedThisPress_ = false;
     double lastRatC_ = 15.0;
+    double lastPressureAltFt_ = 0.0;
     bool lastOnGround_ = true;
     bool lastKnobPressed_ = false;
     bool selfTestFailed_ = false;

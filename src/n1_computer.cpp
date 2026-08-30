@@ -43,6 +43,7 @@ bool N1Computer::loadTables(const std::string& dir) {
 void N1Computer::setMode(Mode mode) {
     if (mode == mode_) return;
     mode_ = mode;
+    releaseTakeoffHold();
     wakeFromStandby();
 }
 
@@ -86,6 +87,7 @@ void N1Computer::reset() {
     sinceTouchdownS_ = 0.0;
     airborneS_ = 0.0;
     selectedTempC_.reset();
+    takeoffHold_.reset();
     rotatedThisPress_ = false;
     lastKnobPressed_ = false;
 }
@@ -95,10 +97,11 @@ void N1Computer::handleGroundAirTransition(const InputSnapshot& input, double dt
     const bool touchedDown = !lastOnGround_ && input.onGround;
     if (!input.onGround) airborneS_ += dtSeconds;
     if (liftedOff) {
-        selectedTempC_.reset();
+        armTakeoffHold();
         wakeFromStandby();
     }
     if (touchedDown) {
+        releaseTakeoffHold();
         if (airborneS_ >= kMinAirborneForLandingS) {
             landingRevertArmed_ = true;
             sinceTouchdownS_ = 0.0;
@@ -122,6 +125,26 @@ void N1Computer::handleKnobPressEdge(const InputSnapshot& input) {
     wakeFromStandby();
 }
 
+/// "After the airplane is inflight, the display will continue to indicate
+/// takeoff percent N1 based on the selected temperature, field elevation and
+/// anti-ice until another mode is selected" (AFM Supplement 6, p. S6-6). Only
+/// TO/GA was showing a takeoff target on the ground, so only TO/GA has one to
+/// hold; lifting off in CLB or CRU goes straight to that mode's schedule.
+void N1Computer::armTakeoffHold() {
+    if (mode_ != Mode::ToGa) return;
+    takeoffHold_ = TakeoffHold{selectedTempC_.value_or(lastRatC_), lastPressureAltFt_};
+}
+
+/// Ends the hold, and with it the selected temperature it captured: from here
+/// the display works from "RAT and current pressure altitude ... for that
+/// mode". Touchdown ends it too - the ground rules are separately specified,
+/// and the takeoff the selection belonged to is over.
+void N1Computer::releaseTakeoffHold() {
+    if (!takeoffHold_) return;
+    takeoffHold_.reset();
+    selectedTempC_.reset();
+}
+
 void N1Computer::wakeFromStandby() {
     standby888_ = false;
     landingRevertArmed_ = false;
@@ -130,6 +153,7 @@ void N1Computer::wakeFromStandby() {
 
 void N1Computer::rememberInputs(const InputSnapshot& input) {
     lastRatC_ = input.ratC;
+    lastPressureAltFt_ = input.pressureAltFt;
     lastOnGround_ = input.onGround;
     lastKnobPressed_ = input.knobPressed;
 }
@@ -161,13 +185,18 @@ Output N1Computer::targetDisplay(const InputSnapshot& input) const {
 
 Output N1Computer::groundTargetDisplay(const InputSnapshot& input, bool antiIceOn) const {
     if (mode_ != Mode::ToGa) return dashes();
-    const auto& table = antiIceOn ? tables_.takeoffAi : tables_.takeoff;
-    return n1From(table, selectedTempC_.value_or(input.ratC), input.pressureAltFt);
+    return takeoffDisplay(selectedTempC_.value_or(input.ratC), input.pressureAltFt, antiIceOn);
 }
 
 Output N1Computer::airborneTargetDisplay(const InputSnapshot& input, bool antiIceOn) const {
+    if (takeoffHold_)
+        return takeoffDisplay(takeoffHold_->oatC, takeoffHold_->fieldElevationFt, antiIceOn);
     if (mode_ == Mode::ToGa && input.pressureAltFt > kGoAroundCeilingFt) return dashes();
     return n1From(airborneSchedule(antiIceOn), input.ratC, input.pressureAltFt);
+}
+
+Output N1Computer::takeoffDisplay(double oatC, double paFt, bool antiIceOn) const {
+    return n1From(antiIceOn ? tables_.takeoffAi : tables_.takeoff, oatC, paFt);
 }
 
 const std::optional<N1Table>& N1Computer::airborneSchedule(bool antiIceOn) const {

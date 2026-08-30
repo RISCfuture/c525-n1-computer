@@ -80,6 +80,13 @@ Output run(N1Computer& computer, const InputSnapshot& input, double seconds,
     return out;
 }
 
+// AFM S6-6: go-around comes from *reselecting* the centre TO/GA position,
+// which is also what releases the takeoff target held since liftoff.
+void selectGoAround(N1Computer& computer) {
+    computer.setMode(Mode::Clb);
+    computer.setMode(Mode::ToGa);
+}
+
 N1Computer poweredOnGround(const std::string& fixturesDir) {
     N1Computer computer;
     REQUIRE(computer.loadTables(fixturesDir));
@@ -224,7 +231,7 @@ TEST_CASE("a missing chart cell shows dashes") {
     CHECK(run(computer, onGroundAt(5.0, 1000.0), 0.2).state == DisplayState::Dashes);
 }
 
-TEST_CASE("selected temperature: set, apply, and clear on liftoff") {
+TEST_CASE("selected temperature: set, apply, and hold it after liftoff") {
     const std::string fixturesDir = fixturesDirectory();
     N1Computer computer = poweredOnGround(fixturesDir);
 
@@ -252,10 +259,55 @@ TEST_CASE("selected temperature: set, apply, and clear on liftoff") {
     out = run(computer, pressed, 0.2);  // re-press without rotating shows RAT again
     CHECK(out.state == DisplayState::Rat);
 
-    out = run(computer, airborneAt(0.0, 1000.0), 0.2);  // liftoff clears selected temp
-    CHECK(!computer.selectedTempC().has_value());
+    // Inflight the takeoff target holds on the selected temperature and field
+    // elevation, ignoring the climbing pressure altitude and the falling RAT.
+    out = run(computer, airborneAt(-10.0, 4000.0), 0.2);
     CHECK(out.state == DisplayState::N1);
-    CHECK_NEAR(out.value, 82.2, 1e-9);  // go-around table at actual RAT
+    CHECK_NEAR(out.value, 92.2, 1e-9);  // still the ground answer
+    CHECK_NEAR(computer.selectedTempC().value_or(-999), 1.0, 1e-9);
+
+    computer.setMode(Mode::Clb);  // another mode ends the hold and the selection
+    CHECK(!computer.selectedTempC().has_value());
+    out = run(computer, airborneAt(-10.0, 20000.0), 0.2);
+    CHECK(out.state == DisplayState::N1);
+    CHECK_NEAR(out.value, 62.0, 1e-9);  // climb table at actual RAT and PA
+}
+
+TEST_CASE("the takeoff target holds after liftoff until another mode is selected") {
+    const std::string fixturesDir = fixturesDirectory();
+    N1Computer computer = poweredOnGround(fixturesDir);
+
+    Output out = run(computer, onGroundAt(0.0, 0.0), 0.2);
+    CHECK_NEAR(out.value, 92.0, 1e-9);  // takeoff N1 at sensed RAT, sea level
+
+    // With no temperature dialed the hold captures the sensed RAT and field
+    // elevation the ground display was using.
+    out = run(computer, airborneAt(20.0, 4000.0), 0.2);
+    CHECK(out.state == DisplayState::N1);
+    CHECK_NEAR(out.value, 92.0, 1e-9);
+
+    // Anti-ice is not held: the AFM keeps it live, so switching it on inflight
+    // moves the same held conditions onto the anti-ice takeoff schedule.
+    InputSnapshot iced = airborneAt(20.0, 4000.0);
+    iced.antiIce = 2;
+    out = run(computer, iced, 0.2);
+    CHECK(out.state == DisplayState::N1);
+    CHECK_NEAR(out.value, 87.0, 1e-9);
+
+    selectGoAround(computer);
+    out = run(computer, airborneAt(-10.0, 10000.0), 0.2);
+    CHECK(out.state == DisplayState::N1);
+    CHECK_NEAR(out.value, 82.0, 1e-9);  // go-around table at actual RAT and PA
+}
+
+TEST_CASE("lifting off in CLB or CRU holds nothing") {
+    const std::string fixturesDir = fixturesDirectory();
+    N1Computer computer = poweredOnGround(fixturesDir);
+
+    computer.setMode(Mode::Clb);  // never showed a takeoff target to hold
+    Output out = run(computer, airborneAt(-10.0, 20000.0), 0.2);
+    CHECK(out.state == DisplayState::N1);
+    CHECK_NEAR(out.value, 62.0, 1e-9);
 }
 
 TEST_CASE("selected temperature saturates at the chart edges") {
@@ -301,6 +353,7 @@ TEST_CASE("go-around is gated above 15,500 ft") {
     const std::string fixturesDir = fixturesDirectory();
     N1Computer computer = poweredOnGround(fixturesDir);
     run(computer, airborneAt(), 0.2);
+    selectGoAround(computer);
 
     Output out = run(computer, airborneAt(-10.0, 15000.0), 0.2);
     CHECK(out.state == DisplayState::N1);

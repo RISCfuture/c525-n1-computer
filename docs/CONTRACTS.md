@@ -55,11 +55,24 @@ public:
 }
 ```
 
-Behavior per plan: 888 self-test on power-up (default 5 s, constant in one place);
-ground: TOGA = takeoff N1 (RAT or selected temp), CLB/CRU = dashes; air: CLB/CRU/GA
-targets from actual RAT+PA, GA only ≤ 15,500 ft (above → dashes); anti-ice partial →
-dashes; missing table data → dashes; selected temp applies on ground only, cleared on
-liftoff; after landing, revert to 888 after 60 s.
+Behavior per the FAA-approved AFM, Cessna Model 525 Section V Supplement 6,
+"SafeFlight N1 Reminder" (525FMA-S6-00/-01, pp. S6-5/S6-6; scan in `reference/`):
+888 self-test on power-up (duration not charted — 5 s, constant in one place);
+ground: TOGA = takeoff N1 (RAT or selected temp), CLB/CRU = dashes ("if any other
+mode is selected on the ground ... the display will indicate '---'"); air: CLB/CRU/GA
+targets from actual RAT+PA, GA only ≤ 15,500 ft (above → dashes, an inference — the
+AFM states the ceiling, not what replaces the target); anti-ice partial → dashes;
+missing table data → dashes; after landing, revert to 888 after 60 s.
+
+**Takeoff hold.** "After the airplane is inflight, the display will continue to
+indicate takeoff percent N1 based on the selected temperature, field elevation and
+anti-ice until another mode is selected" — so liftoff in TOGA latches the temperature
+(selected, else the last sensed RAT) and the field elevation, and keeps reading the
+takeoff schedule until the knob moves. Anti-ice stays live, being named separately
+from the two latched inputs. Go-around therefore arrives on *reselecting* TOGA, not
+on liftoff. Lifting off in CLB/CRU latches nothing: those positions were showing
+dashes, so there is no takeoff target to hold. The selected temperature lives exactly
+as long as the hold — cleared with it on the first mode change, or on touchdown.
 
 Failures (FlightSafety CJ1 PTM Vol 2, pp. 16-167/16-169): "the display will blank for
 any failure". `Fail` blanks the display while leaving it energized, so the unlit ghost
