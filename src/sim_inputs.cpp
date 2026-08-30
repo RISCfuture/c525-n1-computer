@@ -24,14 +24,23 @@ constexpr const char* kAirDataFailureDataRefs[] = {
     "sim/operation/failures/rel_tat_2",       // TAT probe (no pilot-side dataref exists)
 };
 
-// The three anti-ice switches are three-position: the cockpit object animates
-// each of ice_bleed, ice_wing_l and ice_wing_r over rotate keys -1 / 0 / +1
-// with the centre at rest, and TorqueSim puts OFF at 0 on every such switch
-// (batt is EMER -1 / OFF 0 / BATT +1). Both non-zero detents are therefore
-// selected positions - W/S BLEED AIR is HI and LO either side of OFF - so the
-// test is "not centred", never "positive", which would read LO as off and
-// dash on a fully configured airplane.
-bool switchIsOn(XPLMDataRef ref) { return ref && XPLMGetDatai(ref) != 0; }
+// The three anti-ice switches are all three-position, centre at rest, but the
+// two live detents do not mean the same thing on each. Driving them in the sim
+// and watching what the airplane energises:
+//
+//   ice_wing_l / ice_wing_r   -1  engine inlet heat only, wing cold
+//                              0  off
+//                             +1  engine inlet heat and that side's wing
+//   ice_bleed                 -1  a W/S bleed setting (no stock dataref moves;
+//                             +1  cj_systems models the windshield internally)
+//
+// So the wing switches only satisfy the AFM's "WING" at +1, while either live
+// detent of W/S BLEED AIR is a bleed setting. Down on a wing switch is the
+// engine-only case the Operating Manual charts separately, which is why it must
+// not read as the full anti-ice configuration.
+bool switchIsLive(XPLMDataRef ref) { return ref && XPLMGetDatai(ref) != 0; }
+
+bool wingIsSelected(XPLMDataRef ref) { return ref && XPLMGetDatai(ref) > 0; }
 
 bool busIsEnergized(XPLMDataRef ref) { return ref && XPLMGetDataf(ref) >= kBusEnergizedVolts; }
 
@@ -99,16 +108,19 @@ bool SimInputs::airDataFailed() const {
 
 /// "All bleed air anti-ice (W/S, ENG, WING) must be selected on for anti-ice
 /// power setting. If anti-ice is partially activated, '---' will be displayed"
-/// (AFM Supplement 6, p. S6-5). The airplane spreads those three over three
-/// switches: W/S BLEED AIR, and the two WING/ENGINE switches.
+/// (AFM Supplement 6, p. S6-5). Everything centred is off; W/S bleed live with
+/// both WING/ENGINE switches up is the full configuration; anything between is
+/// partial. Engine-only - both wing switches down, W/S off - is a partial here,
+/// though the Operating Manual does publish a schedule for it.
 int SimInputs::antiIce(const AircraftGate& gate) const {
     if (!gate.isActive()) return 0;
     const AfmHandles& afm = gate.handles();
-    const int engaged = (switchIsOn(afm.iceWindshieldBleed) ? 1 : 0) +
-                        (switchIsOn(afm.iceWingLeft) ? 1 : 0) +
-                        (switchIsOn(afm.iceWingRight) ? 1 : 0);
-    if (engaged == 0) return 0;
-    if (engaged == 3) return 2;
+    const bool windshield = switchIsLive(afm.iceWindshieldBleed);
+    const bool left = switchIsLive(afm.iceWingLeft);
+    const bool right = switchIsLive(afm.iceWingRight);
+    if (!windshield && !left && !right) return 0;
+    if (windshield && wingIsSelected(afm.iceWingLeft) && wingIsSelected(afm.iceWingRight))
+        return 2;
     return 1;
 }
 

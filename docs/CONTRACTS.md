@@ -186,12 +186,26 @@ schedule, which looks healthy while showing the wrong target.
 
 Anti-ice reads the AFM's three bleed air systems (W/S, ENG, WING) off three
 switches: `switch_panel/ice_bleed` is W/S BLEED AIR, and `ice_wing_l`/`ice_wing_r`
-are the WING/ENGINE pair. All three are three-position — the cockpit object
-animates them over rotate keys −1/0/+1 with the centre at rest, and TorqueSim puts
-OFF at 0 on every such switch (`batt` is EMER −1 / OFF 0 / BATT +1) — so a switch
-counts as selected when it is off centre, not when it is positive. Testing for
-positive would read the lower detent (W/S BLEED AIR LO) as off and dash on a fully
-configured airplane.
+are the WING/ENGINE pair. All three are three-position with the centre at rest,
+but their live detents do not mean the same thing. Driving each in the sim and
+watching what the airplane energises:
+
+| Dataref | −1 | 0 | +1 |
+| --- | --- | --- | --- |
+| `ice_wing_l` / `ice_wing_r` | engine inlet heat only, wing cold | off | engine inlet heat **and** that side's wing |
+| `ice_bleed` | a W/S bleed setting | off | a W/S bleed setting |
+
+(`ice_bleed` moves no stock ice dataref at either live position — cj_systems
+models the windshield internally — while the wing switches drive
+`ice_inlet_heat_on_per_engine` at both live detents and `ice_surfce_heat_*_on`
+only at +1.)
+
+So "all on" is W/S bleed off centre **and** both wing switches at +1; "all off" is
+everything centred; anything else is partial. Reading a wing switch as merely
+off-centre would let the engine-only configuration select the full anti-ice
+schedule, which is the one partial case the Operating Manual charts separately —
+so engine-only is detectable here, and dashes only because the supplement says
+it should.
 
 The supplement's rule — anything short of all three on displays dashes — is what
 we implement. The manufacturer's Operating Manual publishes more than that, and
