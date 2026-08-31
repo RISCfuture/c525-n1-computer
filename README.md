@@ -129,6 +129,8 @@ rather than a tracked copy. [`lib/README.md`](lib/README.md) explains why.
 | `tests/` | Host tests and the in-sim Lua harness. |
 | `fastlane/` | macOS code signing via _match_. |
 
+[`CHANGELOG.md`](CHANGELOG.md) records what changed between releases.
+
 Start with [`docs/CONTRACTS.md`](docs/CONTRACTS.md): it fixes the CSV schema,
 the module APIs, the published datarefs and commands, and the modelled display
 and failure behaviour, quoting the flight manual supplement it comes from.
