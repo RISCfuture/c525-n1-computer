@@ -4,7 +4,7 @@ Notable changes to the SafeFlightN1 plugin. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] — unreleased
+## [0.2.0] — 2026-08-30
 
 The device's own FAA-approved flight manual supplement (Cessna Model 525,
 Section V, Supplement 6, _SafeFlight N1 Reminder_) and Cessna's Model 525
@@ -76,5 +76,5 @@ replace them; see below.
 
 Initial release.
 
-[0.2.0]: https://github.com/RISCfuture/c525-n1-computer/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/RISCfuture/c525-n1-computer/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/RISCfuture/c525-n1-computer/releases/tag/v0.1.0
